@@ -1,31 +1,71 @@
 import React, { Fragment, ReactElement, useEffect, useState } from 'react';
-import { getAuthorizationURL } from '../auth';
+import SpotifyWebApi from 'spotify-web-api-node';
+import { getAuthorizationURL } from '../lib/auth';
 
-type stateType = {
+type LoginUrlState = {
   isLoading: boolean,
   isErrored: boolean,
-  loginURL: string | null
+  loginUrl: string | null
 };
 
-function Homepage() {
-  const [state, setState] = useState<stateType>({ isLoading: true, isErrored: false, loginURL: null });
+type PlaylistsState = {
+  isLoading: boolean,
+  isErrored: boolean,
+  playlists: SpotifyApi.PlaylistObjectSimplified[] | null
+};
+
+function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedIn: boolean }) {
+  const [loginUrlState, setloginUrlState] = useState<LoginUrlState>({ isLoading: true, isErrored: false, loginUrl: null });
   useEffect(() => {
     getAuthorizationURL().then(v => {
-      setState({ isLoading: false, isErrored: false, loginURL: v });
+      setloginUrlState({ isLoading: false, isErrored: false, loginUrl: v });
     })
     .catch(e => {
       console.error(e);
-      setState({ isLoading: false, isErrored: true, loginURL: null });
+      setloginUrlState({ isLoading: false, isErrored: true, loginUrl: null });
     });
   }, []);
 
+  const [playlistsState, setPlaylistsState] = useState<PlaylistsState>({ isLoading: true, isErrored: false, playlists: null });
+  useEffect(() => {
+    if (!loggedIn)
+      return;
+
+    const fetchPlaylists = async () => {
+      try {
+        const result = await spotifyApi.getUserPlaylists();
+        setPlaylistsState({ isLoading: false, isErrored: false, playlists: result.body.items })
+      } catch (e) {
+        setPlaylistsState({ isLoading: false, isErrored: true, playlists: null })
+      }
+    };
+    fetchPlaylists();
+  }, [spotifyApi, loggedIn, setPlaylistsState]);
+
   let content: ReactElement;
-  if (state.isLoading) {
+  if (loginUrlState.isLoading) {
     content = <p>Loading</p>;
-  } else if (state.isErrored) {
+  } else if (loginUrlState.isErrored) {
     content = <p>Errored</p>;
+  } else if (!loggedIn) {
+    content = <a href={loginUrlState.loginUrl as string}>Login</a>;
   } else {
-    content = <a href={state.loginURL as string}>Login</a>;
+    let playlistContent;
+
+    if (playlistsState.isLoading) {
+      playlistContent = <p>Loading</p>;
+    } else if (playlistsState.isErrored || !playlistsState.playlists) {
+      playlistContent = <p>Errored</p>;
+    } else {
+      playlistContent = playlistsState.playlists.map((playlist) => <p key={playlist.id}>{playlist.name}</p>);
+    }
+
+    content = (
+      <div>
+        <h2>Playlists</h2>
+        {playlistContent}
+      </div>
+    );
   }
 
   return <Fragment>{content}</Fragment>

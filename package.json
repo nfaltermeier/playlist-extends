@@ -44,5 +44,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/spotify-api": "0.0.13",
+    "@types/spotify-web-api-node": "^5.0.7"
   }
 }
