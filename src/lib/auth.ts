@@ -27,8 +27,7 @@ const getAuthorizationURL = async (): Promise<string> => {
   crypto.getRandomValues(codeVerifierRaw);
   const codeVerifier = base64URLEncode(codeVerifierRaw);
   const encoder = new TextEncoder();
-  const codeChallengeBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier).buffer);
-  const codeChallengeArray = new Uint8Array(codeChallengeBuffer);
+  const codeChallengeArray = new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier).buffer));
   const codeChallenge = base64URLEncode(codeChallengeArray);
 
   const stateRaw = new Uint8Array(12);
@@ -43,7 +42,7 @@ const getAuthorizationURL = async (): Promise<string> => {
   params.append('response_type', 'code');
   params.append('redirect_uri', config.redirect_uri);
   params.append('state', state);
-  params.append('scope', 'playlist-modify-private');
+  params.append('scope', 'playlist-modify-private playlist-read-collaborative playlist-read-private playlist-modify-public');
   params.append('show_dialog', 'false');
   params.append('code_challenge_method', 'S256');
   params.append('code_challenge', codeChallenge);

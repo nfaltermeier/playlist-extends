@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Route, Routes, BrowserRouter } from "react-router-dom";
+import { Route, Routes, HashRouter } from "react-router-dom";
 import SpotifyWebApi from 'spotify-web-api-node';
 import './index.css';
 import App from './App';
@@ -19,7 +19,7 @@ const RoutesContainer = () => {
     setLoggedIn(true);
   }, [setLoggedIn]);
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<App />}>
           <Route path="/" element={<Homepage spotifyApi={spotifyApi.current} loggedIn={loggedIn} />} />
@@ -27,7 +27,7 @@ const RoutesContainer = () => {
           <Route path="state-error" element={<StateError />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
