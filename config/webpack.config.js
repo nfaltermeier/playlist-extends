@@ -199,8 +199,8 @@ module.exports = function (webpackEnv) {
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
     entry: {
-      index: [ paths.appIndexJs ],
-      callback: [ paths.appSrc + '/callback.ts' ]
+      index: paths.appIndexJs,
+      callback: paths.appSrc + '/callback.ts',
     },
     output: {
       // The build folder.
@@ -211,7 +211,7 @@ module.exports = function (webpackEnv) {
       // In development, it does not produce real files.
       filename: isEnvProduction
         ? 'static/js/[name].[contenthash:8].js'
-        : isEnvDevelopment && 'static/js/bundle.js',
+        : isEnvDevelopment && 'static/js/[name].bundle.js',
       // There are also additional JS chunk files if you use code splitting.
       chunkFilename: isEnvProduction
         ? 'static/js/[name].[contenthash:8].chunk.js'

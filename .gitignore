@@ -23,3 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 
 config.ts
+config.dev.ts
+config.prod.ts
