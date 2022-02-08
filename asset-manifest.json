@@ -1,20 +1,20 @@
 {
   "files": {
     "index.css": "/spotify-playlist-extends/static/css/index.9b63c805.css",
-    "index.js": "/spotify-playlist-extends/static/js/index.ed80ac57.js",
+    "index.js": "/spotify-playlist-extends/static/js/index.5b754726.js",
     "callback.js": "/spotify-playlist-extends/static/js/callback.bee636e4.js",
     "static/js/787.c81b9afe.chunk.js": "/spotify-playlist-extends/static/js/787.c81b9afe.chunk.js",
     "index.html": "/spotify-playlist-extends/index.html",
     "callback.html": "/spotify-playlist-extends/callback.html",
     "index.9b63c805.css.map": "/spotify-playlist-extends/static/css/index.9b63c805.css.map",
-    "index.ed80ac57.js.map": "/spotify-playlist-extends/static/js/index.ed80ac57.js.map",
+    "index.5b754726.js.map": "/spotify-playlist-extends/static/js/index.5b754726.js.map",
     "callback.bee636e4.js.map": "/spotify-playlist-extends/static/js/callback.bee636e4.js.map",
     "787.c81b9afe.chunk.js.map": "/spotify-playlist-extends/static/js/787.c81b9afe.chunk.js.map"
   },
   "entrypoints": {
     "index": [
       "static/css/index.9b63c805.css",
-      "static/js/index.ed80ac57.js"
+      "static/js/index.5b754726.js"
     ],
     "callback": [
       "static/js/callback.bee636e4.js"
