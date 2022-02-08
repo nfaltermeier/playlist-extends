@@ -1,6 +1,7 @@
 import React, { Fragment, ReactElement, useEffect, useState } from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import { getAuthorizationURL } from '../lib/auth';
+import { paginateRequest } from '../lib/Api';
 
 type LoginUrlState = {
   isLoading: boolean,
@@ -33,8 +34,8 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
 
     const fetchPlaylists = async () => {
       try {
-        const result = await spotifyApi.getUserPlaylists();
-        setPlaylistsState({ isLoading: false, isErrored: false, playlists: result.body.items })
+        const result = await paginateRequest((offset) => spotifyApi.getUserPlaylists({ offset }));
+        setPlaylistsState({ isLoading: false, isErrored: false, playlists: result })
       } catch (e) {
         setPlaylistsState({ isLoading: false, isErrored: true, playlists: null })
       }
