@@ -3,6 +3,8 @@ body {
   color: white;
 }
 
-.App {
-  text-align: center;
+:local {
+  .App {
+    text-align: center;
+  }
 }

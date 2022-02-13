@@ -2,6 +2,8 @@ import React, { Fragment, ReactElement, useEffect, useState } from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import { getAuthorizationURL } from '../lib/auth';
 import { paginateRequest } from '../lib/Api';
+import Overlay from '../components/Overlay';
+import NewPlaylist from '../components/NewPlaylist';
 
 type LoginUrlState = {
   isLoading: boolean,
@@ -34,7 +36,7 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
 
     const fetchPlaylists = async () => {
       try {
-        const result = await paginateRequest((offset) => spotifyApi.getUserPlaylists({ offset }));
+        const result = await paginateRequest((offset) => spotifyApi.getUserPlaylists({ limit: 50, offset }));
         setPlaylistsState({ isLoading: false, isErrored: false, playlists: result })
       } catch (e) {
         setPlaylistsState({ isLoading: false, isErrored: true, playlists: null })
@@ -42,6 +44,7 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
     };
     fetchPlaylists();
   }, [spotifyApi, loggedIn, setPlaylistsState]);
+  const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
 
   let content: ReactElement;
   if (loginUrlState.isLoading) {
@@ -64,6 +67,10 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
     content = (
       <div>
         <h2>Playlists</h2>
+        <button onClick={() => { setIsCreatingPlaylist(true); }}>New Playlist</button>
+        <Overlay isOpen={isCreatingPlaylist} closeOverlay={() => { setIsCreatingPlaylist(false); }}>
+          <NewPlaylist spotifyApi={spotifyApi} playlists={playlistsState.playlists} />
+        </Overlay>
         {playlistContent}
       </div>
     );

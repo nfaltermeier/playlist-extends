@@ -1,0 +1,30 @@
+:local {
+  .optionsList {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .bottomMenu {
+    > * {
+      width: 50%;
+      display: inline-block;
+      margin: 4px 0;
+
+      &:first-child {
+        text-align: left;
+      }
+  
+      &:last-child {
+        text-align: right;
+      }
+    }
+  }
+
+  .bottomMenuContent {
+    font-size: 1.5rem;
+  }
+
+  .playlistNameInput {
+    max-width: 10rem;
+  }
+}

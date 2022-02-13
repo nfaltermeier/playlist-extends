@@ -1,0 +1,33 @@
+:local {
+  .background {
+    background: #333c;
+
+    // Based off of https://stackoverflow.com/a/48954092
+    z-index: 9;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    > * {
+      background: #282c34;
+
+      margin: 5vh auto;
+      width: 80%;
+      max-width: 650px;
+      padding: 30px;
+      min-height: 80vh;
+    }
+  }
+
+  .closeButtonContainer {
+    text-align: right;
+    button {
+      font-size: 1.5rem;
+      margin: 4px;
+    }
+  }
+}
