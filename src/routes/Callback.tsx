@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { LoginCallbackType } from '../RoutesContainer';
-import { verifyState, requestAccessToken } from "../lib/auth";
+import { verifyState, clearStoredState, requestAccessToken } from "../lib/auth";
 
 // from https://v5.reactrouter.com/web/example/query-parameters
 const useQuery = (): URLSearchParams => {
@@ -17,9 +17,11 @@ const Callback = ({ loginCallback }: { loginCallback: LoginCallbackType }) => {
   useEffect(() => {
     const state = query.get('state');
     if (!state || !verifyState(state)) {
+      clearStoredState();
       navigate('/state-error');
       return;
     }
+    clearStoredState();
 
     const code = query.get('code');
     if (!code) {

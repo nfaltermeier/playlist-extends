@@ -1,7 +1,7 @@
 import React, { Fragment, ReactElement, useEffect, useState } from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import { getAuthorizationURL } from '../lib/auth';
-import { paginateRequest } from '../lib/Api';
+import { paginateRequest, refreshAuthWrapper } from '../lib/Api';
 import Overlay from '../components/Overlay';
 import NewPlaylist from '../components/NewPlaylist';
 
@@ -36,10 +36,10 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
 
     const fetchPlaylists = async () => {
       try {
-        const result = await paginateRequest((offset) => spotifyApi.getUserPlaylists({ limit: 50, offset }));
-        setPlaylistsState({ isLoading: false, isErrored: false, playlists: result })
+        const result = await paginateRequest((offset) => refreshAuthWrapper(() => spotifyApi.getUserPlaylists({ limit: 50, offset }), spotifyApi));
+        setPlaylistsState({ isLoading: false, isErrored: false, playlists: result });
       } catch (e) {
-        setPlaylistsState({ isLoading: false, isErrored: true, playlists: null })
+        setPlaylistsState({ isLoading: false, isErrored: true, playlists: null });
       }
     };
     fetchPlaylists();
@@ -76,7 +76,7 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
     );
   }
 
-  return <Fragment>{content}</Fragment>
+  return <Fragment>{content}</Fragment>;
 }
 
 export default Homepage;

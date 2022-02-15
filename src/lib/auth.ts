@@ -9,6 +9,13 @@ type AccessTokenRequestResponse = {
   refresh_token: string
 };
 
+type RefreshAccessTokenRequestResponse = {
+  access_token: string,
+  token_type: string,
+  scope: string,
+  expires_in: number
+};
+
 const codeVerifierStorageKey = 'spotify_auth_verifier';
 const stateStorageKey = 'spotify_auth_state';
 
@@ -23,14 +30,14 @@ const base64URLEncode = (buffer: Uint8Array): string => {
 const getAuthorizationURL = async (): Promise<string> => {
   const baseURL = 'https://accounts.spotify.com/authorize?';
 
-  const codeVerifierRaw = new Uint8Array(66);
+  const codeVerifierRaw = new Uint8Array(96);
   crypto.getRandomValues(codeVerifierRaw);
   const codeVerifier = base64URLEncode(codeVerifierRaw);
   const encoder = new TextEncoder();
   const codeChallengeArray = new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier).buffer));
   const codeChallenge = base64URLEncode(codeChallengeArray);
 
-  const stateRaw = new Uint8Array(12);
+  const stateRaw = new Uint8Array(66);
   crypto.getRandomValues(stateRaw);
   const state = base64URLEncode(stateRaw);
 
@@ -58,10 +65,15 @@ const verifyState = (state: string): boolean => {
   return false;
 };
 
+const clearStoredState = () => {
+  window.sessionStorage.removeItem(stateStorageKey);
+}
+
 const requestAccessToken = async (code: string): Promise<AccessTokenRequestResponse> => {
   const baseURL = 'https://accounts.spotify.com/api/token?';
 
   const codeVerifier = window.sessionStorage.getItem(codeVerifierStorageKey);
+  window.sessionStorage.removeItem(codeVerifierStorageKey);
   if (!codeVerifier) {
     return new Promise((resolve, reject) => { reject('Code verifier cookie not found'); });
   }
@@ -86,4 +98,25 @@ const requestAccessToken = async (code: string): Promise<AccessTokenRequestRespo
     return new Promise((resolve, reject) => { reject(`${result.status}: ${result.statusText}`); });
 };
 
-export { getAuthorizationURL, verifyState, requestAccessToken };
+const refreshAccessToken = async (refreshToken: string): Promise<RefreshAccessTokenRequestResponse> => {
+  const baseURL = 'https://accounts.spotify.com/api/token?';
+
+  const params = new URLSearchParams();
+  params.append('grant_type', 'refresh_token');
+  params.append('refresh_token', refreshToken);
+  params.append('client_id', config.clientId);
+
+  const requestConfig = {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  };
+  const result = await axios.post<RefreshAccessTokenRequestResponse>(baseURL, params, requestConfig);
+  
+  if (result.status === 200)
+    return result.data;
+  else
+    return new Promise((resolve, reject) => { reject(`${result.status}: ${result.statusText}`); });
+};
+
+export { getAuthorizationURL, verifyState, clearStoredState, requestAccessToken, refreshAccessToken };

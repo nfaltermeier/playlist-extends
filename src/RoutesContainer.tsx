@@ -18,6 +18,7 @@ const RoutesContainer = () => {
     spotifyApi.current.setRefreshToken(refreshToken);
     setLoggedIn(true);
   }, [setLoggedIn]);
+  
   return (
     <HashRouter>
       <Routes>
