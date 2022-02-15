@@ -20,12 +20,10 @@ const codeVerifierStorageKey = 'spotify_auth_verifier';
 const stateStorageKey = 'spotify_auth_state';
 
 // adapted from https://www.oauth.com/oauth2-servers/pkce/authorization-request/
-const base64URLEncode = (buffer: Uint8Array): string => {
-  return btoa(String.fromCharCode.apply(null, buffer as unknown as number[]))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}
+const base64URLEncode = (buffer: Uint8Array): string => btoa(String.fromCharCode.apply(null, buffer as unknown as number[]))
+  .replace(/\+/g, '-')
+  .replace(/\//g, '_')
+  .replace(/=+$/, '');
 
 const getAuthorizationURL = async (): Promise<string> => {
   const baseURL = 'https://accounts.spotify.com/authorize?';
@@ -67,7 +65,7 @@ const verifyState = (state: string): boolean => {
 
 const clearStoredState = () => {
   window.sessionStorage.removeItem(stateStorageKey);
-}
+};
 
 const requestAccessToken = async (code: string): Promise<AccessTokenRequestResponse> => {
   const baseURL = 'https://accounts.spotify.com/api/token?';
@@ -75,7 +73,7 @@ const requestAccessToken = async (code: string): Promise<AccessTokenRequestRespo
   const codeVerifier = window.sessionStorage.getItem(codeVerifierStorageKey);
   window.sessionStorage.removeItem(codeVerifierStorageKey);
   if (!codeVerifier) {
-    return new Promise((resolve, reject) => { reject('Code verifier cookie not found'); });
+    return new Promise((resolve, reject) => { reject(new Error('Code verifier cookie not found')); });
   }
 
   const params = new URLSearchParams();
@@ -87,15 +85,13 @@ const requestAccessToken = async (code: string): Promise<AccessTokenRequestRespo
 
   const requestConfig = {
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
   };
   const result = await axios.post<AccessTokenRequestResponse>(baseURL, params, requestConfig);
-  
-  if (result.status === 200)
-    return result.data;
-  else
-    return new Promise((resolve, reject) => { reject(`${result.status}: ${result.statusText}`); });
+
+  if (result.status === 200) return result.data;
+  return new Promise((resolve, reject) => { reject(new Error(`${result.status}: ${result.statusText}`)); });
 };
 
 const refreshAccessToken = async (refreshToken: string): Promise<RefreshAccessTokenRequestResponse> => {
@@ -108,15 +104,15 @@ const refreshAccessToken = async (refreshToken: string): Promise<RefreshAccessTo
 
   const requestConfig = {
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
   };
   const result = await axios.post<RefreshAccessTokenRequestResponse>(baseURL, params, requestConfig);
-  
-  if (result.status === 200)
-    return result.data;
-  else
-    return new Promise((resolve, reject) => { reject(`${result.status}: ${result.statusText}`); });
+
+  if (result.status === 200) return result.data;
+  return new Promise((resolve, reject) => { reject(new Error(`${result.status}: ${result.statusText}`)); });
 };
 
-export { getAuthorizationURL, verifyState, clearStoredState, requestAccessToken, refreshAccessToken };
+export {
+  getAuthorizationURL, verifyState, clearStoredState, requestAccessToken, refreshAccessToken,
+};

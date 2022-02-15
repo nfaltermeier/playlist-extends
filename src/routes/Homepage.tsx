@@ -1,4 +1,4 @@
-import React, { Fragment, ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import SpotifyWebApi from 'spotify-web-api-node';
 import { getAuthorizationURL } from '../lib/auth';
 import { paginateRequest, refreshAuthWrapper } from '../lib/Api';
@@ -20,19 +20,18 @@ type PlaylistsState = {
 function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedIn: boolean }) {
   const [loginUrlState, setloginUrlState] = useState<LoginUrlState>({ isLoading: true, isErrored: false, loginUrl: null });
   useEffect(() => {
-    getAuthorizationURL().then(v => {
+    getAuthorizationURL().then((v) => {
       setloginUrlState({ isLoading: false, isErrored: false, loginUrl: v });
     })
-    .catch(e => {
-      console.error(e);
-      setloginUrlState({ isLoading: false, isErrored: true, loginUrl: null });
-    });
+      .catch((e) => {
+        console.error(e);
+        setloginUrlState({ isLoading: false, isErrored: true, loginUrl: null });
+      });
   }, []);
 
   const [playlistsState, setPlaylistsState] = useState<PlaylistsState>({ isLoading: true, isErrored: false, playlists: null });
   useEffect(() => {
-    if (!loggedIn)
-      return;
+    if (!loggedIn) return;
 
     const fetchPlaylists = async () => {
       try {
@@ -67,7 +66,7 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
     content = (
       <div>
         <h2>Playlists</h2>
-        <button onClick={() => { setIsCreatingPlaylist(true); }}>New Playlist</button>
+        <button onClick={() => { setIsCreatingPlaylist(true); }} type="button">New Playlist</button>
         <Overlay isOpen={isCreatingPlaylist} closeOverlay={() => { setIsCreatingPlaylist(false); }}>
           <NewPlaylist spotifyApi={spotifyApi} playlists={playlistsState.playlists} />
         </Overlay>
@@ -76,7 +75,7 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
     );
   }
 
-  return <Fragment>{content}</Fragment>;
+  return content;
 }
 
 export default Homepage;

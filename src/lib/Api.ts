@@ -37,10 +37,9 @@ const refreshAuthWrapper = async <T>(requestFn: () => Promise<T>, spotifyApi: Sp
 
         const result = await requestFn();
         return result;
-      } else {
-        console.warn('No spotify API refresh token set, cannot retry request');
-        throw e;
       }
+      console.warn('No spotify API refresh token set, cannot retry request');
+      throw e;
     } else {
       throw e;
     }

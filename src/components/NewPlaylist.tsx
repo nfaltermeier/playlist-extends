@@ -1,14 +1,14 @@
-import { useCallback, useRef } from "react";
-import SpotifyWebApi from "spotify-web-api-node";
-import { paginateRequest } from "../lib/Api";
+import { useCallback, useRef } from 'react';
+import SpotifyWebApi from 'spotify-web-api-node';
+import { paginateRequest } from '../lib/Api';
 import styles from './NewPlaylist.module.scss';
 
 interface NewPlaylistProps {
   spotifyApi: SpotifyWebApi,
   playlists: SpotifyApi.PlaylistObjectSimplified[] | null
-};
+}
 
-const NewPlaylist = (props: NewPlaylistProps) => {
+function NewPlaylist(props: NewPlaylistProps) {
   const { spotifyApi, playlists } = props;
 
   const newPlaylistName = useRef<HTMLInputElement>(null);
@@ -21,12 +21,9 @@ const NewPlaylist = (props: NewPlaylistProps) => {
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(async (event) => {
     event.preventDefault();
-    if (!newPlaylistName.current)
-      return;
+    if (!newPlaylistName.current) { return; }
 
-    const jaggedSongs = await Promise.all(Array.from(checkedPlaylists.current).map((playlist) =>
-      paginateRequest((offset) => spotifyApi.getPlaylistTracks(playlist, { fields: 'items(track(uri)),total', limit: 50, offset }))
-    ));
+    const jaggedSongs = await Promise.all(Array.from(checkedPlaylists.current).map((playlist) => paginateRequest((offset) => spotifyApi.getPlaylistTracks(playlist, { fields: 'items(track(uri)),total', limit: 50, offset }))));
     const trackUris = jaggedSongs.flat().map((trackObject) => trackObject.track.uri);
 
     // temporarily make everything private for testing
@@ -46,13 +43,15 @@ const NewPlaylist = (props: NewPlaylistProps) => {
       const id = `NewPlaylist-${playlist.id}`;
       return (
         <div key={playlist.id}>
-          <label htmlFor={id}>{playlist.name}</label>
-          <input type="checkbox" id={id} value={checkedPlaylists.current.has(playlist.id).toString()} onChange={() => { togglePlaylist(playlist.id); }}></input>
+          <label htmlFor={id}>
+            {playlist.name}
+            <input type="checkbox" id={id} value={checkedPlaylists.current.has(playlist.id).toString()} onChange={() => { togglePlaylist(playlist.id); }} />
+          </label>
         </div>
       );
     });
   } else {
-    content = "Missing playlists";
+    content = 'Missing playlists';
   }
 
   return (
@@ -60,8 +59,10 @@ const NewPlaylist = (props: NewPlaylistProps) => {
       <div className={styles.optionsList}>{content}</div>
       <div className={styles.bottomMenu}>
         <div>
-          <label htmlFor="NewPlaylistName" className={styles.bottomMenuContent}>Playlist Name: </label>
-          <input ref={newPlaylistName} id="NewPlaylistName" required defaultValue="New Playlist" className={`${styles.bottomMenuContent} ${styles.playlistNameInput}`} />
+          <label className={styles.bottomMenuContent} htmlFor="NewPlaylistName">
+            Playlist Name:
+            <input id="NewPlaylistName" type="text" ref={newPlaylistName} required defaultValue="New Playlist" className={`${styles.bottomMenuContent} ${styles.playlistNameInput}`} />
+          </label>
         </div>
         <div>
           <input id="submit" type="submit" value="Save" className={styles.bottomMenuContent} />
@@ -69,6 +70,6 @@ const NewPlaylist = (props: NewPlaylistProps) => {
       </div>
     </form>
   );
-};
+}
 
 export default NewPlaylist;

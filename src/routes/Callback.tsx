@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
-import { LoginCallbackType } from '../RoutesContainer';
-import { verifyState, clearStoredState, requestAccessToken } from "../lib/auth";
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import type { LoginCallbackType } from '../RoutesContainer';
+import { verifyState, clearStoredState, requestAccessToken } from '../lib/auth';
 
 // from https://v5.reactrouter.com/web/example/query-parameters
 const useQuery = (): URLSearchParams => {
   const { search } = useLocation();
 
   return React.useMemo(() => new URLSearchParams(search), [search]);
-}
+};
 
-const Callback = ({ loginCallback }: { loginCallback: LoginCallbackType }) => {
+function Callback({ loginCallback }: { loginCallback: LoginCallbackType }) {
   const query = useQuery();
   const navigate = useNavigate();
   const [state, setState] = useState({ isLoading: true, isErrored: false });
   useEffect(() => {
-    const state = query.get('state');
-    if (!state || !verifyState(state)) {
+    const authState = query.get('state');
+    if (!authState || !verifyState(authState)) {
       clearStoredState();
       navigate('/state-error');
       return;
@@ -40,13 +40,10 @@ const Callback = ({ loginCallback }: { loginCallback: LoginCallbackType }) => {
       console.warn(err);
     });
   }, [navigate, query, setState, loginCallback]);
-  
-  if (state.isLoading)
-    return <p>Processing...</p>;
-  else if (state.isErrored)
-    return <p>Errored</p>;
-  else
-    return <p>Logged in</p>;
-};
+
+  if (state.isLoading) return <p>Processing...</p>;
+  if (state.isErrored) return <p>Errored</p>;
+  return <p>Logged in</p>;
+}
 
 export default Callback;
