@@ -6,6 +6,7 @@
   "dependencies": {
     "@babel/core": "^7.16.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+    "@reduxjs/toolkit": "^1.7.2",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
@@ -46,6 +47,7 @@
     "react-app-polyfill": "^3.0.0",
     "react-dev-utils": "^12.0.0",
     "react-dom": "^17.0.2",
+    "react-redux": "^7.2.6",
     "react-refresh": "^0.11.0",
     "react-router": "^6.2.1",
     "react-router-dom": "^6.2.1",
@@ -85,7 +87,17 @@
     "rules": {
       "max-len": "off",
       "no-await-in-loop": "off",
-      "no-console": "off"
+      "no-console": "off",
+      "@typescript-eslint/comma-dangle":["error", {
+        "arrays": "always-multiline",
+        "objects": "always-multiline",
+        "imports": "always-multiline",
+        "exports": "always-multiline",
+        "functions": "never",
+        "enums": "always-multiline",
+        "generics": "always-multiline",
+        "tuples": "always-multiline"
+      }]
     }
   },
   "stylelint": {

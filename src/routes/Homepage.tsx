@@ -1,9 +1,12 @@
 import { ReactElement, useEffect, useState } from 'react';
-import SpotifyWebApi from 'spotify-web-api-node';
+import { useDispatch } from 'react-redux';
+import spotifyApi from '../lib/spotifyApiKeeper';
 import { getAuthorizationURL } from '../lib/auth';
 import { paginateRequest, refreshAuthWrapper } from '../lib/Api';
 import Overlay from '../components/Overlay';
 import NewPlaylist from '../components/NewPlaylist';
+import { useLoggedIn } from '../redux/loggedIn';
+import { addPlaylists, ExtendedablePlaylist, usePlaylists } from '../redux/playlists';
 
 type LoginUrlState = {
   isLoading: boolean,
@@ -11,13 +14,15 @@ type LoginUrlState = {
   loginUrl: string | null
 };
 
-type PlaylistsState = {
+type PlaylistsRequestState = {
   isLoading: boolean,
   isErrored: boolean,
-  playlists: SpotifyApi.PlaylistObjectSimplified[] | null
 };
 
-function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedIn: boolean }) {
+function Homepage() {
+  const dispatch = useDispatch();
+  const loggedIn = useLoggedIn();
+  const playlists = usePlaylists();
   const [loginUrlState, setloginUrlState] = useState<LoginUrlState>({ isLoading: true, isErrored: false, loginUrl: null });
   useEffect(() => {
     getAuthorizationURL().then((v) => {
@@ -29,20 +34,27 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
       });
   }, []);
 
-  const [playlistsState, setPlaylistsState] = useState<PlaylistsState>({ isLoading: true, isErrored: false, playlists: null });
+  const [playlistsRequestState, setPlaylistsRequestState] = useState<PlaylistsRequestState>({ isLoading: true, isErrored: false });
   useEffect(() => {
     if (!loggedIn) return;
 
     const fetchPlaylists = async () => {
       try {
         const result = await paginateRequest((offset) => refreshAuthWrapper(() => spotifyApi.getUserPlaylists({ limit: 50, offset }), spotifyApi));
-        setPlaylistsState({ isLoading: false, isErrored: false, playlists: result });
+        const mappedResult: ExtendedablePlaylist[] = result.map((playlist) => ({
+          id: playlist.id,
+          name: playlist.name,
+          snapshot: playlist.snapshot_id,
+          extendedPlaylists: [],
+        }));
+        dispatch(addPlaylists(mappedResult));
+        setPlaylistsRequestState({ isLoading: false, isErrored: false });
       } catch (e) {
-        setPlaylistsState({ isLoading: false, isErrored: true, playlists: null });
+        setPlaylistsRequestState({ isLoading: false, isErrored: true });
       }
     };
     fetchPlaylists();
-  }, [spotifyApi, loggedIn, setPlaylistsState]);
+  }, [loggedIn, setPlaylistsRequestState, dispatch]);
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
 
   let content: ReactElement;
@@ -55,12 +67,12 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
   } else {
     let playlistContent;
 
-    if (playlistsState.isLoading) {
+    if (playlistsRequestState.isLoading) {
       playlistContent = <p>Loading</p>;
-    } else if (playlistsState.isErrored || !playlistsState.playlists) {
+    } else if (playlistsRequestState.isErrored) {
       playlistContent = <p>Errored</p>;
     } else {
-      playlistContent = playlistsState.playlists.map((playlist) => <p key={playlist.id}>{playlist.name}</p>);
+      playlistContent = playlists.map((playlist) => <p key={playlist.id}>{playlist.name}</p>);
     }
 
     content = (
@@ -68,7 +80,7 @@ function Homepage({ spotifyApi, loggedIn }: { spotifyApi: SpotifyWebApi, loggedI
         <h2>Playlists</h2>
         <button onClick={() => { setIsCreatingPlaylist(true); }} type="button">New Playlist</button>
         <Overlay isOpen={isCreatingPlaylist} closeOverlay={() => { setIsCreatingPlaylist(false); }}>
-          <NewPlaylist spotifyApi={spotifyApi} playlists={playlistsState.playlists} />
+          <NewPlaylist />
         </Overlay>
         {playlistContent}
       </div>

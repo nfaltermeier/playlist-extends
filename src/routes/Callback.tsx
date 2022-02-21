@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import type { LoginCallbackType } from '../RoutesContainer';
+import { useDispatch } from 'react-redux';
 import { verifyState, clearStoredState, requestAccessToken } from '../lib/auth';
+import spotifyApi from '../lib/spotifyApiKeeper';
+import { setLoggedIn } from '../redux/loggedIn';
 
 // from https://v5.reactrouter.com/web/example/query-parameters
 const useQuery = (): URLSearchParams => {
@@ -10,10 +12,18 @@ const useQuery = (): URLSearchParams => {
   return React.useMemo(() => new URLSearchParams(search), [search]);
 };
 
-function Callback({ loginCallback }: { loginCallback: LoginCallbackType }) {
+function Callback() {
+  const dispatch = useDispatch();
   const query = useQuery();
   const navigate = useNavigate();
   const [state, setState] = useState({ isLoading: true, isErrored: false });
+
+  const loginCallback = useCallback((accessToken: string, refreshToken: string) => {
+    spotifyApi.setAccessToken(accessToken);
+    spotifyApi.setRefreshToken(refreshToken);
+    dispatch(setLoggedIn());
+  }, [dispatch]);
+
   useEffect(() => {
     const authState = query.get('state');
     if (!authState || !verifyState(authState)) {
