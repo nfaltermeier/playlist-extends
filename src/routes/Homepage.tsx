@@ -6,7 +6,7 @@ import { paginateRequest, refreshAuthWrapper } from '../lib/Api';
 import Overlay from '../components/Overlay';
 import NewPlaylist from '../components/NewPlaylist';
 import { useLoggedIn } from '../redux/loggedIn';
-import { addPlaylists, ExtendedablePlaylist, usePlaylists } from '../redux/playlists';
+import { mergeSpotifyState, testResetNeedsSync, usePlaylists } from '../redux/playlists';
 
 type LoginUrlState = {
   isLoading: boolean,
@@ -41,13 +41,8 @@ function Homepage() {
     const fetchPlaylists = async () => {
       try {
         const result = await paginateRequest((offset) => refreshAuthWrapper(() => spotifyApi.getUserPlaylists({ limit: 50, offset }), spotifyApi));
-        const mappedResult: ExtendedablePlaylist[] = result.map((playlist) => ({
-          id: playlist.id,
-          name: playlist.name,
-          snapshot: playlist.snapshot_id,
-          extendedPlaylists: [],
-        }));
-        dispatch(addPlaylists(mappedResult));
+        dispatch(testResetNeedsSync());
+        dispatch(mergeSpotifyState(result));
         setPlaylistsRequestState({ isLoading: false, isErrored: false });
       } catch (e) {
         setPlaylistsRequestState({ isLoading: false, isErrored: true });

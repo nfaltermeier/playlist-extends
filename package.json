@@ -51,6 +51,7 @@
     "react-refresh": "^0.11.0",
     "react-router": "^6.2.1",
     "react-router-dom": "^6.2.1",
+    "redux-persist": "^6.0.0",
     "resolve": "^1.20.0",
     "resolve-url-loader": "^4.0.0",
     "sass": "^1.49.7",
@@ -88,16 +89,19 @@
       "max-len": "off",
       "no-await-in-loop": "off",
       "no-console": "off",
-      "@typescript-eslint/comma-dangle":["error", {
-        "arrays": "always-multiline",
-        "objects": "always-multiline",
-        "imports": "always-multiline",
-        "exports": "always-multiline",
-        "functions": "never",
-        "enums": "always-multiline",
-        "generics": "always-multiline",
-        "tuples": "always-multiline"
-      }]
+      "@typescript-eslint/comma-dangle": [
+        "error",
+        {
+          "arrays": "always-multiline",
+          "objects": "always-multiline",
+          "imports": "always-multiline",
+          "exports": "always-multiline",
+          "functions": "never",
+          "enums": "always-multiline",
+          "generics": "always-multiline",
+          "tuples": "always-multiline"
+        }
+      ]
     }
   },
   "stylelint": {

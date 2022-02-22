@@ -44,7 +44,13 @@ function NewPlaylist() {
       tracksAdded += 100;
     } while (tracksAdded < trackUris.length);
     dispatch(addPlaylists([{
-      id: playlistId, name: playlistName, snapshot: snapshotId, extendedPlaylists: Array.from(checkedPlaylists.current),
+      id: playlistId,
+      name: playlistName,
+      snapshotId,
+      componentPlaylistIds: Array.from(checkedPlaylists.current),
+      isComponentPlaylist: false,
+      needsSync: false,
+      deletedOnSpotify: false,
     }]));
   }, [checkedPlaylists, dispatch]);
 
