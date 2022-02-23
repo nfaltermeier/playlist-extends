@@ -1,4 +1,6 @@
-import { ReactElement, useEffect, useState } from 'react';
+import {
+  ReactElement, useCallback, useEffect, useState,
+} from 'react';
 import { useDispatch } from 'react-redux';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import { getAuthorizationURL } from '../lib/auth';
@@ -35,23 +37,25 @@ function Homepage() {
   }, []);
 
   const [playlistsRequestState, setPlaylistsRequestState] = useState<PlaylistsRequestState>({ isLoading: true, isErrored: false });
+  const fetchPlaylists = useCallback(async () => {
+    try {
+      const result = await paginateRequest((offset) => refreshAuthWrapper(() => spotifyApi.getUserPlaylists({ limit: 50, offset }), spotifyApi));
+      dispatch(testResetNeedsSync());
+      dispatch(mergeSpotifyState(result));
+      setPlaylistsRequestState({ isLoading: false, isErrored: false });
+    } catch (e) {
+      setPlaylistsRequestState({ isLoading: false, isErrored: true });
+      console.error(e);
+    }
+  }, [dispatch, setPlaylistsRequestState]);
   useEffect(() => {
     if (!loggedIn) return;
 
-    const fetchPlaylists = async () => {
-      try {
-        const result = await paginateRequest((offset) => refreshAuthWrapper(() => spotifyApi.getUserPlaylists({ limit: 50, offset }), spotifyApi));
-        dispatch(testResetNeedsSync());
-        dispatch(mergeSpotifyState(result));
-        setPlaylistsRequestState({ isLoading: false, isErrored: false });
-      } catch (e) {
-        setPlaylistsRequestState({ isLoading: false, isErrored: true });
-      }
-    };
     fetchPlaylists();
-  }, [loggedIn, setPlaylistsRequestState, dispatch]);
+  }, [loggedIn, fetchPlaylists]);
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
 
+  const closeOverlay = useCallback(() => { setIsCreatingPlaylist(false); }, [setIsCreatingPlaylist]);
   let content: ReactElement;
   if (loginUrlState.isLoading) {
     content = <p>Loading</p>;
@@ -74,8 +78,9 @@ function Homepage() {
       <div>
         <h2>Playlists</h2>
         <button onClick={() => { setIsCreatingPlaylist(true); }} type="button">New Playlist</button>
-        <Overlay isOpen={isCreatingPlaylist} closeOverlay={() => { setIsCreatingPlaylist(false); }}>
-          <NewPlaylist />
+        <button onClick={fetchPlaylists} type="button">Refresh playlists</button>
+        <Overlay isOpen={isCreatingPlaylist} closeOverlay={closeOverlay}>
+          <NewPlaylist closeOverlay={closeOverlay} />
         </Overlay>
         {playlistContent}
       </div>

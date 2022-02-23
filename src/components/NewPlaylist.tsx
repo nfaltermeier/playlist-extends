@@ -1,11 +1,11 @@
 import { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { paginateRequest } from '../lib/Api';
-import { usePlaylists, addPlaylists } from '../redux/playlists';
+import { usePlaylists, prependPlaylist } from '../redux/playlists';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import styles from './NewPlaylist.module.scss';
 
-function NewPlaylist() {
+function NewPlaylist({ closeOverlay }: { closeOverlay: () => void }) {
   const dispatch = useDispatch();
   const playlists = usePlaylists();
   const newPlaylistName = useRef<HTMLInputElement>(null);
@@ -18,7 +18,7 @@ function NewPlaylist() {
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(async (event) => {
     event.preventDefault();
-    if (!newPlaylistName.current) { return; }
+    if (!newPlaylistName.current || checkedPlaylists.current.size === 0) { return; }
 
     const jaggedSongs = await Promise.all(Array.from(checkedPlaylists.current).map((playlist) => (
       paginateRequest((offset) => (
@@ -43,20 +43,20 @@ function NewPlaylist() {
       // tracksAdded will be inaccurate after the while loop, but that should be okay
       tracksAdded += 100;
     } while (tracksAdded < trackUris.length);
-    dispatch(addPlaylists([{
+    dispatch(prependPlaylist({
       id: playlistId,
       name: playlistName,
       snapshotId,
       componentPlaylistIds: Array.from(checkedPlaylists.current),
-      isComponentPlaylist: false,
       needsSync: false,
       deletedOnSpotify: false,
-    }]));
-  }, [checkedPlaylists, dispatch]);
+    }));
+    closeOverlay();
+  }, [checkedPlaylists, dispatch, closeOverlay]);
 
   let content;
   if (playlists.length > 0) {
-    content = playlists.map((playlist) => {
+    content = playlists.filter((playlist) => !playlist.deletedOnSpotify).map((playlist) => {
       const id = `NewPlaylist-${playlist.id}`;
       return (
         <div key={playlist.id}>

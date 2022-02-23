@@ -47,7 +47,7 @@ function Callback() {
       navigate('/', { replace: true });
     }).catch((err) => {
       setState({ isLoading: false, isErrored: true });
-      console.warn(err);
+      console.error(err);
     });
   }, [navigate, query, setState, loginCallback]);
 
