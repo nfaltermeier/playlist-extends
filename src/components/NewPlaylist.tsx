@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { paginateRequest } from '../lib/Api';
+import { paginateAndRefreshAuth } from '../lib/Api';
 import { usePlaylists, prependPlaylist } from '../redux/playlists';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import styles from './NewPlaylist.module.scss';
@@ -21,7 +21,7 @@ function NewPlaylist({ closeOverlay }: { closeOverlay: () => void }) {
     if (!newPlaylistName.current || checkedPlaylists.current.size === 0) { return; }
 
     const jaggedSongs = await Promise.all(Array.from(checkedPlaylists.current).map((playlist) => (
-      paginateRequest((offset) => (
+      paginateAndRefreshAuth((offset) => (
         spotifyApi.getPlaylistTracks(playlist, { fields: 'items(track(uri)),total', limit: 50, offset })
       ))
     )));

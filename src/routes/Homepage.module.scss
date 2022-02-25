@@ -1,0 +1,14 @@
+:local {
+  .playlistContent {
+    display: inline-block;
+    margin: 0 auto;
+
+    thead td {
+      border-bottom: 1px solid white;
+    }
+
+    td {
+      padding-left: 5px;
+    }
+  }
+}

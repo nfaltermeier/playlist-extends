@@ -41,7 +41,6 @@ const playlistsSlice = createSlice({
             if (playlistWasUpdated.get(compositePlaylistId) === false) {
               const compositePlaylist = state.entities[compositePlaylistId];
               if (compositePlaylist) {
-                console.log(`checkCompositePlaylists marked ${compositePlaylistId} as needs sync`);
                 compositePlaylist.needsSync = true;
                 playlistWasUpdated.set(compositePlaylistId, true);
                 checkCompositePlaylists(compositePlaylistId);
@@ -136,6 +135,7 @@ export const {
   selectById: selectPlaylistById,
 } = playlistsAdapter.getSelectors((state: RootState) => state.playlists);
 export const usePlaylists = () => useSelector(selectAllPlaylists);
+export const usePlaylistById = (id: string) => useSelector((state: RootState) => selectPlaylistById(state, id));
 export const {
   prependPlaylist, mergeSpotifyState, setName, setSnapshotId, setComponentPlaylists, testResetNeedsSync,
 } = playlistsSlice.actions;
