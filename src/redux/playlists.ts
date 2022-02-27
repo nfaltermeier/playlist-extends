@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, createEntityAdapter } from '@reduxjs/toolki
 import { useSelector } from 'react-redux';
 import type { RootState } from './store';
 
-export interface ExtendedablePlaylist {
+export interface ExtendablePlaylist {
   id: string,
   name: string,
   snapshotId: string,
@@ -11,14 +11,14 @@ export interface ExtendedablePlaylist {
   deletedOnSpotify: boolean
 }
 
-const playlistsAdapter = createEntityAdapter<ExtendedablePlaylist>();
+const playlistsAdapter = createEntityAdapter<ExtendablePlaylist>();
 const localSelectors = playlistsAdapter.getSelectors();
 
 const playlistsSlice = createSlice({
   name: 'playlists',
   initialState: playlistsAdapter.getInitialState(),
   reducers: {
-    prependPlaylist(state, action: PayloadAction<ExtendedablePlaylist>) {
+    prependPlaylist(state, action: PayloadAction<ExtendablePlaylist>) {
       playlistsAdapter.setAll(state, [action.payload, ...localSelectors.selectAll(state)]);
     },
     mergeSpotifyState(state, action: PayloadAction<SpotifyApi.PlaylistObjectSimplified[]>) {

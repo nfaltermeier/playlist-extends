@@ -1,0 +1,41 @@
+:local {
+  // Styles adapted and restructured from https://two-wrongs.com/draw-a-tree-structure-with-only-css
+  .treeRoot {
+    display: inline-block;
+    text-align: left;
+    &, ul, li {
+      position: relative;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 32px;
+
+      li {
+        &::before, &::after {
+          content: "";
+          position: absolute;
+          left: -12px;
+        }
+    
+        &::before {
+          border-top: 1px solid #fff;
+          top: 9px;
+          width: 8px;
+          height: 0;
+        }
+    
+        &::after {
+          border-left: 1px solid #fff;
+          height: 100%;
+          width: 0px;
+          top: 2px;
+        }
+      }
+
+      > li:last-child::after {
+        height: 8px;
+      }
+    }
+  }
+}
