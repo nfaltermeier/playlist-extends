@@ -76,4 +76,15 @@ const fetchPlaylists = async (successCallback: () => void, failureCallback: () =
   }
 };
 
-export { paginateAndRefreshAuth, refreshAuthWrapper, fetchPlaylists };
+const getTrackUris = async (playlistIds: string[]): Promise<string[]> => {
+  const jaggedSongs = await Promise.all(playlistIds.map((playlist) => (
+    paginateAndRefreshAuth((offset) => (
+      spotifyApi.getPlaylistTracks(playlist, { fields: 'items(track(uri)),total', limit: 50, offset })
+    ))
+  )));
+  return jaggedSongs.flat().map((trackObject) => trackObject.track.uri);
+};
+
+export {
+  paginateAndRefreshAuth, refreshAuthWrapper, fetchPlaylists, getTrackUris,
+};
