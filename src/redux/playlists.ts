@@ -3,12 +3,12 @@ import { useSelector } from 'react-redux';
 import type { RootState } from './store';
 
 export interface ExtendablePlaylist {
-  id: string,
-  name: string,
-  snapshotId: string,
-  componentPlaylistIds: string[],
-  needsSync: boolean,
-  deletedOnSpotify: boolean
+  readonly id: string,
+  readonly name: string,
+  readonly snapshotId: string,
+  readonly componentPlaylistIds: string[],
+  readonly needsSync: boolean,
+  readonly deletedOnSpotify: boolean
 }
 
 const playlistsAdapter = createEntityAdapter<ExtendablePlaylist>();
@@ -127,6 +127,53 @@ const playlistsSlice = createSlice({
         id, changes: { needsSync: false },
       })));
     },
+    setCompositePlaylistsNeedSync(state, action: PayloadAction<string>) {
+      const playlistId = action.payload;
+      const updatedPlaylists = [playlistId];
+      // key: component playlist ID, value: array of composite playlist IDs that contain the key playlist
+      const compositePlaylistsMap = new Map<string, string[]>();
+      /**
+       * Recursively set all playlists to need sync that contain playlistId as a component playlist.
+       */
+      const setCompositePlaylists = (checkPlaylistId: string) => {
+        const compositePlaylistIds = compositePlaylistsMap.get(checkPlaylistId);
+        if (compositePlaylistIds) {
+          compositePlaylistIds.forEach((compositePlaylistId) => {
+            const compositePlaylist = state.entities[compositePlaylistId];
+            if (compositePlaylist) {
+              if (!compositePlaylist.needsSync) {
+                compositePlaylist.needsSync = true;
+                updatedPlaylists.push(compositePlaylist.id);
+                setCompositePlaylists(compositePlaylistId);
+              }
+            } else {
+              console.warn('compositePlaylistId is not present in state');
+            }
+          });
+        }
+      };
+      state.ids.forEach((checkPlaylistId) => {
+        const playlist = state.entities[checkPlaylistId];
+        if (!playlist) { return; }
+        if (updatedPlaylists.some((test) => playlist.componentPlaylistIds.includes(test))) {
+          playlist.needsSync = true;
+          updatedPlaylists.push(playlist.id);
+          setCompositePlaylists(playlist.id);
+        } else {
+          playlist.componentPlaylistIds.forEach((componentPlaylistId) => {
+            const otherComposites = compositePlaylistsMap.get(componentPlaylistId);
+            if (otherComposites) {
+              otherComposites.push(playlist.id);
+            } else {
+              compositePlaylistsMap.set(componentPlaylistId, [playlist.id]);
+            }
+          });
+        }
+      });
+    },
+    deletePlaylist(state, action: PayloadAction<string>) {
+      playlistsAdapter.removeOne(state, action.payload);
+    },
   },
 });
 
@@ -137,6 +184,7 @@ export const {
 export const usePlaylists = () => useSelector(selectAllPlaylists);
 export const usePlaylistById = (id: string) => useSelector((state: RootState) => selectPlaylistById(state, id));
 export const {
-  prependPlaylist, mergeSpotifyState, setName, setSnapshotId, setComponentPlaylists, testResetNeedsSync,
+  prependPlaylist, mergeSpotifyState, setName, setSnapshotId,
+  setComponentPlaylists, testResetNeedsSync, setCompositePlaylistsNeedSync, deletePlaylist,
 } = playlistsSlice.actions;
 export default playlistsSlice.reducer;

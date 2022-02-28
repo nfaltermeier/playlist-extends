@@ -42,7 +42,7 @@ function Homepage() {
             if (playlist.deletedOnSpotify) {
               status = 'Deleted';
             } else if (playlist.needsSync) {
-              status = 'Sync';
+              status = 'Needs Sync';
             } else {
               status = '';
             }
@@ -51,7 +51,11 @@ function Homepage() {
                 <td>{playlist.name}</td>
                 <td>{playlist.componentPlaylistIds.length > 0 ? 'Extended' : ''}</td>
                 <td>{status}</td>
-                <td><button type="button" onClick={() => { navigate(`playlist/${playlist.id}`); }}>Edit</button></td>
+                <td>
+                  <button type="button" onClick={() => { navigate(`playlist/${playlist.id}`); }}>
+                    {playlist.componentPlaylistIds.length > 0 ? 'Edit' : 'View'}
+                  </button>
+                </td>
               </tr>
             );
           })}

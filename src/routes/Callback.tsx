@@ -44,6 +44,7 @@ function Callback() {
       loginCallback(result.access_token, result.refresh_token);
       setState({ isLoading: false, isErrored: false });
       window.sessionStorage.clear();
+      // TODO: redirect to page user was on before logging in
       navigate('/', { replace: true });
     }).catch((err) => {
       setState({ isLoading: false, isErrored: true });

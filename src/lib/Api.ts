@@ -1,5 +1,5 @@
 import store from '../redux/store';
-import { mergeSpotifyState, testResetNeedsSync } from '../redux/playlists';
+import { mergeSpotifyState } from '../redux/playlists';
 import { refreshAccessToken } from './auth';
 import spotifyApi from './spotifyApiKeeper';
 
@@ -67,7 +67,7 @@ const fetchPlaylists = async (successCallback: () => void, failureCallback: () =
   const { dispatch } = store;
   try {
     const result = await paginateAndRefreshAuth((offset) => spotifyApi.getUserPlaylists({ limit: 50, offset }));
-    dispatch(testResetNeedsSync());
+    // dispatch(testResetNeedsSync());
     dispatch(mergeSpotifyState(result));
     successCallback();
   } catch (e) {
