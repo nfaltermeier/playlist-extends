@@ -6,7 +6,7 @@ function App() {
   return (
     <div className={styles.App}>
       <header>
-        <h1>Spotify Playlist Extends</h1>
+        <h1>Playlist Extends</h1>
         <nav>
           <NavLink to="/">Home</NavLink>
         </nav>

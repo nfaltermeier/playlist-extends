@@ -9,7 +9,7 @@ const getPublicUrlOrPath = require('react-dev-utils/getPublicUrlOrPath');
 const appDirectory = fs.realpathSync(process.cwd());
 const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
-// allow the dev server to be served from the root, but production builds to be served from /spotify-playlist-extends/
+// allow the dev server to be served from the root, but production builds to be served from /playlist-extends/
 const publicUrlOrPath = process.env.NODE_ENV === 'development' ?
   '' :
   // We use `PUBLIC_URL` environment variable or "homepage" field to infer
