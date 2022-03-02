@@ -1,6 +1,8 @@
+@use 'variables';
+
 body {
-  background-color: #282c34;
-  color: white;
+  background-color: variables.$background-color;
+  color: variables.$text-color;
 }
 
 :local {

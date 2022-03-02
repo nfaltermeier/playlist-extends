@@ -131,6 +131,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-router-dom": "^5.3.3",
     "@types/spotify-api": "0.0.13",
     "@types/spotify-web-api-node": "^5.0.7",
     "@types/webpack-env": "^1.16.3",

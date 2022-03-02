@@ -2,6 +2,7 @@ import {
   ReactNode, useCallback, useRef, useState,
 } from 'react';
 import { usePlaylists } from '../redux/playlists';
+import PlaylistSearch from './PlaylistSearch';
 import styles from './PlaylistsPicker.module.scss';
 
 type PlaylistsPickerProps = {
@@ -65,6 +66,7 @@ function PlaylistsPicker(props: PlaylistsPickerProps) {
   return (
     <form onSubmit={onSubmit}>
       <h2>{title}</h2>
+      <PlaylistSearch />
       <div className={styles.optionsList}>{content}</div>
       <div className={bottomMenuContainerClassName}>
         {bottomMenu}
