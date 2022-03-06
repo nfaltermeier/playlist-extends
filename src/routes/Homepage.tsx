@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
+import LoginGate from '../components/LoginGate';
 import Overlay from '../components/Overlay';
 import NewPlaylist from '../components/NewPlaylist';
 import { usePlaylists } from '../redux/playlists';
 import styles from './Homepage.module.scss';
-import { fetchPlaylists } from '../lib/Api';
+import { fetchPlaylists } from '../lib/api';
 
 function Homepage() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ function Homepage() {
   }, [setRefreshPlaylistsMessage]);
 
   return (
-    <div>
+    <LoginGate>
       <h2>Playlists</h2>
       <div>
         <button onClick={() => { setIsCreatingPlaylist(true); }} type="button">New Playlist</button>
@@ -69,7 +70,7 @@ function Homepage() {
           })}
         </tbody>
       </table>
-    </div>
+    </LoginGate>
   );
 }
 

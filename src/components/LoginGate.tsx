@@ -1,6 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { Outlet } from 'react-router';
-import { fetchPlaylists } from '../lib/Api';
+import { fetchPlaylists } from '../lib/api';
 import { getAuthorizationURL } from '../lib/auth';
 import { useLoggedIn } from '../redux/loggedIn';
 
@@ -24,7 +23,7 @@ let playlistsRetrieved = false;
 /**
  * Only renders sub-routes when the user has logged in to spotify and playlists have been retrieved
  */
-function LoginGate() {
+function LoginGate({ children }: { children: ReactNode }) {
   const loggedIn = useLoggedIn();
   const [loginUrlState, setloginUrlState] = useState<LoginUrlState>({ isLoading: !loggedIn, isErrored: false, loginUrl: undefined });
   useEffect(() => {
@@ -70,7 +69,7 @@ function LoginGate() {
   return (
     <div>
       {content}
-      {loggedIn && playlistsRetrieved && <Outlet />}
+      {loggedIn && playlistsRetrieved && children}
     </div>
   );
 }
