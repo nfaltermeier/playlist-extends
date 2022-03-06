@@ -46,10 +46,18 @@ function Homepage() {
             } else {
               status = '';
             }
+            let type;
+            if (playlist.componentPlaylistIds.length > 0) {
+              type = 'Extended';
+            } else if (!playlist.isUserPlaylist) {
+              type = 'External';
+            } else {
+              type = '';
+            }
             return (
               <tr key={playlist.id}>
                 <td>{playlist.name}</td>
-                <td>{playlist.componentPlaylistIds.length > 0 ? 'Extended' : ''}</td>
+                <td>{type}</td>
                 <td>{status}</td>
                 <td>
                   <button type="button" onClick={() => { navigate(`playlist/${playlist.id}`); }}>

@@ -8,7 +8,8 @@ export interface ExtendablePlaylist {
   readonly snapshotId: string,
   readonly componentPlaylistIds: string[],
   readonly needsSync: boolean,
-  readonly deletedOnSpotify: boolean
+  readonly deletedOnSpotify: boolean,
+  readonly isUserPlaylist: boolean
 }
 
 const playlistsAdapter = createEntityAdapter<ExtendablePlaylist>();
@@ -101,12 +102,14 @@ const playlistsSlice = createSlice({
             componentPlaylistIds: [],
             needsSync: false,
             deletedOnSpotify: false,
+            isUserPlaylist: true,
           });
         }
       });
       deletedOnSpotify.forEach((deletedId) => {
         const deleted = state.entities[deletedId];
-        if (deleted) {
+        // TODO: check if non-user playlist is deleted, need to make an API call
+        if (deleted && deleted.isUserPlaylist) {
           deleted.deletedOnSpotify = true;
         } else {
           console.warn('deleted playlist ID is not present in state');
@@ -188,3 +191,7 @@ export const {
   setComponentPlaylists, testResetNeedsSync, setCompositePlaylistsNeedSync, deletePlaylist,
 } = playlistsSlice.actions;
 export default playlistsSlice.reducer;
+/**
+ * For migrations, not recommended for usage. Not a redux action.
+ */
+export const setAllPlaylists = playlistsAdapter.setAll;

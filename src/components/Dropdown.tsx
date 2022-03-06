@@ -1,11 +1,14 @@
 import styles from './Dropdown.module.scss';
 
-function Dropdown({ dropdownPrompt, dropdownContent }:
-{ dropdownPrompt: React.ReactNode, dropdownContent: React.ReactNode }) {
+function Dropdown({
+  buttonText, dropdownContent, showDropdown, buttonCallback,
+}: {
+  buttonText: string, dropdownContent: React.ReactNode, showDropdown: boolean, buttonCallback: () => void
+}) {
   return (
     <div className={styles.dropdown}>
-      <div>{dropdownPrompt}</div>
-      <div className={styles.dropdownContent}>{dropdownContent}</div>
+      <button type="button" onClick={buttonCallback}>{buttonText}</button>
+      {showDropdown && <div className={styles.dropdownContent}>{dropdownContent}</div>}
     </div>
   );
 }

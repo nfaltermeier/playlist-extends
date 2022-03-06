@@ -38,6 +38,7 @@ function NewPlaylist({ closeOverlay }: { closeOverlay: () => void }) {
       componentPlaylistIds: checkedPlaylistIds,
       needsSync: false,
       deletedOnSpotify: false,
+      isUserPlaylist: true,
     }));
     closeOverlay();
   }, [dispatch, closeOverlay]);

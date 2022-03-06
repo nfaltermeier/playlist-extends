@@ -66,7 +66,7 @@ function PlaylistsPicker(props: PlaylistsPickerProps) {
   return (
     <form onSubmit={onSubmit}>
       <h2>{title}</h2>
-      <PlaylistSearch />
+      <PlaylistSearch onPlaylistSelected={togglePlaylist} />
       <div className={styles.optionsList}>{content}</div>
       <div className={bottomMenuContainerClassName}>
         {bottomMenu}

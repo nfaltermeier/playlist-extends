@@ -8,13 +8,8 @@
     .dropdownContent {
       background: variables.$background-color;
       box-shadow: 2px 2px 3px 0px #999999;
-      display: none;
       position: absolute;
       left: 0;
-    }
-
-    &:focus-within > .dropdownContent {
-      display: block;
     }
   }
 }
