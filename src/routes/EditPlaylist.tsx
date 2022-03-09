@@ -25,17 +25,15 @@ function EditPlaylist() {
     const trackUris = await getTrackUris(checkedPlaylistIds);
 
     let tracksAdded = 100;
-    let snapshotId = (((await spotifyApi.replaceTracksInPlaylist(
+    let snapshotId = (await spotifyApi.replaceTracksInPlaylist(
       playlistId,
       trackUris.slice(0, Math.min(trackUris.length, 100))
-      // TODO: remove type cast when TS type update is merged
-    )).body as { snapshot_id: string })).snapshot_id;
+    )).body.snapshot_id;
     while (tracksAdded < trackUris.length) {
-      snapshotId = (((await spotifyApi.addTracksToPlaylist(
+      snapshotId = (await spotifyApi.addTracksToPlaylist(
         playlistId,
         trackUris.slice(tracksAdded, Math.min(trackUris.length, tracksAdded + 100))
-        // TODO: remove type cast when TS type update is merged
-      )).body as { snapshot_id: string })).snapshot_id;
+      )).body.snapshot_id;
       // tracksAdded will be inaccurate after the while loop, but that should be okay
       tracksAdded += 100;
     }
