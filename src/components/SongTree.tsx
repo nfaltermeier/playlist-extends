@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { paginateAndRefreshAuth } from '../lib/api';
+import { paginateAndRefreshAuth } from '../lib/Api';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import { ExtendablePlaylist, selectPlaylistById } from '../redux/playlists';
 import store from '../redux/store';
