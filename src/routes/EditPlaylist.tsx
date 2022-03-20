@@ -53,7 +53,7 @@ function EditPlaylist() {
     return (
       <div>
         <h2>{playlist.name}</h2>
-        <p>This playlist was deleted on Spotify and has was not a composite playlist.</p>
+        <p>This playlist was deleted on Spotify and was not a composite playlist.</p>
         <button
           type="button"
           onClick={() => {
