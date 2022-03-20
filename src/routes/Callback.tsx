@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
-import { verifyState, clearStoredState, requestAccessToken } from '../lib/auth';
+import {
+  verifyState, clearStoredState, requestAccessToken, loadLastLocation,
+} from '../lib/auth';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import { setLoggedIn } from '../redux/loggedIn';
 
@@ -43,9 +45,9 @@ function Callback() {
     requestAccessToken(code).then((result) => {
       loginCallback(result.access_token, result.refresh_token);
       setState({ isLoading: false, isErrored: false });
+      const redirect = loadLastLocation() || '/';
       window.sessionStorage.clear();
-      // TODO: redirect to page user was on before logging in
-      navigate('/', { replace: true });
+      navigate(redirect, { replace: true });
     }).catch((err) => {
       setState({ isLoading: false, isErrored: true });
       console.error(err);

@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router';
 import Overlay from '../components/Overlay';
 import PlaylistsPicker from '../components/PlaylistsPicker';
 import SongTree from '../components/SongTree';
-import { getTrackUris } from '../lib/Api';
+import { getTrackUris } from '../lib/api';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import {
   setComponentPlaylists, setCompositePlaylistsNeedSync, setSnapshotId, usePlaylistById, deletePlaylist,

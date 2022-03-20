@@ -2,7 +2,7 @@ import {
   ReactNode, useCallback, useEffect, useRef, useState,
 } from 'react';
 import { useDispatch } from 'react-redux';
-import { refreshAuthWrapper } from '../lib/Api';
+import { refreshAuthWrapper } from '../lib/api';
 import store from '../redux/store';
 import { selectPlaylistById, prependPlaylist } from '../redux/playlists';
 import spotifyApi from '../lib/spotifyApiKeeper';

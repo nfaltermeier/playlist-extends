@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import PlaylistsPicker from './PlaylistsPicker';
-import { getTrackUris } from '../lib/Api';
+import { getTrackUris } from '../lib/api';
 import { prependPlaylist } from '../redux/playlists';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import styles from './NewPlaylist.module.scss';

@@ -18,6 +18,7 @@ type RefreshAccessTokenRequestResponse = {
 
 const codeVerifierStorageKey = 'spotify_auth_verifier';
 const stateStorageKey = 'spotify_auth_state';
+const lastLocationKey = 'pre_auth_location';
 
 // adapted from https://www.oauth.com/oauth2-servers/pkce/authorization-request/
 const base64URLEncode = (buffer: Uint8Array): string => btoa(String.fromCharCode.apply(null, buffer as unknown as number[]))
@@ -113,6 +114,13 @@ const refreshAccessToken = async (refreshToken: string): Promise<RefreshAccessTo
   return new Promise((resolve, reject) => { reject(new Error(`${result.status}: ${result.statusText}`)); });
 };
 
+const saveLastLocation = (location: string) => {
+  window.sessionStorage.setItem(lastLocationKey, location);
+};
+
+const loadLastLocation = (): string | null => window.sessionStorage.getItem(lastLocationKey);
+
 export {
   getAuthorizationURL, verifyState, clearStoredState, requestAccessToken, refreshAccessToken,
+  saveLastLocation, loadLastLocation,
 };

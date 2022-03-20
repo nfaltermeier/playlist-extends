@@ -4,7 +4,7 @@ import Overlay from '../components/Overlay';
 import NewPlaylist from '../components/NewPlaylist';
 import { usePlaylists } from '../redux/playlists';
 import styles from './Homepage.module.scss';
-import { fetchPlaylists } from '../lib/Api';
+import { fetchPlaylists } from '../lib/api';
 
 function Homepage() {
   const navigate = useNavigate();

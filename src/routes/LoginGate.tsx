@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { Outlet } from 'react-router';
-import { fetchPlaylists } from '../lib/Api';
-import { getAuthorizationURL } from '../lib/auth';
+import { Outlet, useLocation } from 'react-router';
+import { fetchPlaylists } from '../lib/api';
+import { getAuthorizationURL, saveLastLocation } from '../lib/auth';
 import { useLoggedIn } from '../redux/loggedIn';
 
 interface LoginUrlState {
@@ -25,6 +25,7 @@ let playlistsRetrieved = false;
  * Only renders sub-routes when the user has logged in to spotify and playlists have been retrieved
  */
 function LoginGate() {
+  const location = useLocation();
   const loggedIn = useLoggedIn();
   const [loginUrlState, setloginUrlState] = useState<LoginUrlState>({ isLoading: !loggedIn, isErrored: false, loginUrl: undefined });
   useEffect(() => {
@@ -53,12 +54,24 @@ function LoginGate() {
   }, [loggedIn]);
 
   let content: ReactNode;
-  if (loginUrlState.isLoading) {
-    content = <p>Generating Spotify login URL</p>;
-  } else if (loginUrlState.isErrored) {
-    content = <p>Failed to generate Spotify login URL</p>;
-  } else if (!loggedIn) {
-    content = <a href={loginUrlState.loginUrl as string}>Login</a>;
+  if (!loggedIn) {
+    if (loginUrlState.isLoading) {
+      content = <p>Generating Spotify login URL</p>;
+    } else if (loginUrlState.isErrored || !loginUrlState.loginUrl) {
+      content = <p>Failed to generate Spotify login URL</p>;
+    } else {
+      content = (
+        <button
+          type="button"
+          onClick={() => {
+            saveLastLocation(location.pathname + location.search);
+            window.location.href = loginUrlState.loginUrl as string;
+          }}
+        >
+          Login
+        </button>
+      );
+    }
   } else if (playlistsRequestState.isLoading) {
     content = <p>Fetching playlists from Spotify</p>;
   } else if (playlistsRequestState.isErrored) {
