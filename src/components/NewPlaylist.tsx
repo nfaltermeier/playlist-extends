@@ -39,6 +39,7 @@ function NewPlaylist({ closeOverlay }: { closeOverlay: () => void }) {
       needsSync: false,
       deletedOnSpotify: false,
       isUserPlaylist: true,
+      lastSyncTrackUris: trackUris,
     }));
     closeOverlay();
   }, [dispatch, closeOverlay]);

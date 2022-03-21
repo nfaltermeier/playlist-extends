@@ -9,7 +9,9 @@ export interface ExtendablePlaylist {
   readonly componentPlaylistIds: string[],
   readonly needsSync: boolean,
   readonly deletedOnSpotify: boolean,
-  readonly isUserPlaylist: boolean
+  readonly isUserPlaylist: boolean,
+  // The track URIs as of the last sync, only stored for composite playlists
+  readonly lastSyncTrackUris: string[]
 }
 
 const playlistsAdapter = createEntityAdapter<ExtendablePlaylist>();
@@ -107,6 +109,7 @@ const playlistsSlice = createSlice({
             needsSync: false,
             deletedOnSpotify: false,
             isUserPlaylist: true,
+            lastSyncTrackUris: [],
           });
         }
       });

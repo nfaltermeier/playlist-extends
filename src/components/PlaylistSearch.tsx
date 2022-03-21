@@ -142,6 +142,7 @@ function PlaylistSearch({ onPlaylistSelected }: { onPlaylistSelected: (id: strin
         needsSync: false,
         deletedOnSpotify: false,
         isUserPlaylist: false,
+        lastSyncTrackUris: [],
       }));
     }
     onPlaylistSelected(playlist.id);

@@ -12,12 +12,16 @@ const migrations = {
     const playlists = selectAllPlaylists(state);
     return { ...state, playlists: setAllPlaylists(state.playlists, playlists.map((playlist) => ({ ...playlist, isUserPlaylist: true }))) };
   },
+  3: (state: any): any => {
+    const playlists = selectAllPlaylists(state);
+    return { ...state, playlists: setAllPlaylists(state.playlists, playlists.map((playlist) => ({ ...playlist, lastSyncTrackUris: [], needsSync: true }))) };
+  },
 };
 
 const persistConfig = {
   key: 'reduxStore',
   whitelist: ['playlists'],
-  version: 2,
+  version: 3,
   storage,
   migrate: createMigrate(migrations),
 };
