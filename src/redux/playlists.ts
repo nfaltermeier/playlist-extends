@@ -2,6 +2,11 @@ import { createSlice, PayloadAction, createEntityAdapter } from '@reduxjs/toolki
 import { useSelector } from 'react-redux';
 import type { RootState } from './store';
 
+export interface NamedTrack {
+  name: string,
+  uri: string
+}
+
 export interface ExtendablePlaylist {
   readonly id: string,
   readonly name: string,
@@ -11,7 +16,7 @@ export interface ExtendablePlaylist {
   readonly deletedOnSpotify: boolean,
   readonly isUserPlaylist: boolean,
   // The track URIs as of the last sync, only stored for composite playlists
-  readonly lastSyncTrackUris: string[]
+  readonly lastSyncTracks: NamedTrack[]
 }
 
 const playlistsAdapter = createEntityAdapter<ExtendablePlaylist>();
@@ -109,7 +114,7 @@ const playlistsSlice = createSlice({
             needsSync: false,
             deletedOnSpotify: false,
             isUserPlaylist: true,
-            lastSyncTrackUris: [],
+            lastSyncTracks: [],
           });
         }
       });
@@ -131,6 +136,12 @@ const playlistsSlice = createSlice({
     setCompositePlaylistsNeedSync(state, action: PayloadAction<string>) {
       const playlistId = action.payload;
       const updatedPlaylists = [playlistId];
+      {
+        const playlist = state.entities[playlistId];
+        if (playlist) {
+          playlist.needsSync = false;
+        }
+      }
       // key: component playlist ID, value: array of composite playlist IDs that contain the key playlist
       const compositePlaylistsMap = new Map<string, string[]>();
       /**
@@ -175,6 +186,9 @@ const playlistsSlice = createSlice({
     deletePlaylist(state, action: PayloadAction<string>) {
       playlistsAdapter.removeOne(state, action.payload);
     },
+    setLastSyncTracks(state, action: PayloadAction<{ playlistId: string, tracks: NamedTrack[] }>) {
+      playlistsAdapter.updateOne(state, { id: action.payload.playlistId, changes: { lastSyncTracks: action.payload.tracks } });
+    },
   },
 });
 
@@ -187,6 +201,7 @@ export const usePlaylistById = (id: string) => useSelector((state: RootState) =>
 export const {
   prependPlaylist, mergeSpotifyState, setName, setSnapshotId,
   setComponentPlaylists, testResetNeedsSync, setCompositePlaylistsNeedSync, deletePlaylist,
+  setLastSyncTracks,
 } = playlistsSlice.actions;
 export default playlistsSlice.reducer;
 /**

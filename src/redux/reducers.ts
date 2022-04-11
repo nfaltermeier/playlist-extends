@@ -14,7 +14,12 @@ const migrations = {
   },
   3: (state: any): any => {
     const playlists = selectAllPlaylists(state);
-    return { ...state, playlists: setAllPlaylists(state.playlists, playlists.map((playlist) => ({ ...playlist, lastSyncTrackUris: [], needsSync: true }))) };
+    return {
+      ...state,
+      playlists: setAllPlaylists(state.playlists, playlists.map((playlist) => (
+        { ...playlist, lastSyncTracks: [], needsSync: playlist.componentPlaylistIds.length > 0 }
+      ))),
+    };
   },
 };
 

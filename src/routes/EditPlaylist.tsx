@@ -1,13 +1,12 @@
 import { ReactNode, useCallback, useState } from 'react';
-import { batch, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 import Overlay from '../components/Overlay';
 import PlaylistsPicker from '../components/PlaylistsPicker';
 import SongTree from '../components/SongTree';
-import { getTrackUris } from '../lib/api';
-import spotifyApi from '../lib/spotifyApiKeeper';
+import { getNamedTracks, updateExistingPlaylist } from '../lib/api';
 import {
-  setComponentPlaylists, setCompositePlaylistsNeedSync, setSnapshotId, usePlaylistById, deletePlaylist,
+  usePlaylistById, deletePlaylist,
 } from '../redux/playlists';
 
 function EditPlaylist() {
@@ -21,29 +20,11 @@ function EditPlaylist() {
   const onSubmitCallback = useCallback(async (checkedPlaylistIds: string[]) => {
     if (checkedPlaylistIds.length === 0 || !playlistId) { return; }
 
-    const trackUris = await getTrackUris(checkedPlaylistIds);
-
-    let tracksAdded = 100;
-    let snapshotId = (await spotifyApi.replaceTracksInPlaylist(
-      playlistId,
-      trackUris.slice(0, Math.min(trackUris.length, 100))
-    )).body.snapshot_id;
-    while (tracksAdded < trackUris.length) {
-      snapshotId = (await spotifyApi.addTracksToPlaylist(
-        playlistId,
-        trackUris.slice(tracksAdded, Math.min(trackUris.length, tracksAdded + 100))
-      )).body.snapshot_id;
-      // tracksAdded will be inaccurate after the while loop, but that should be okay
-      tracksAdded += 100;
-    }
-    batch(() => {
-      dispatch(setSnapshotId({ playlistId, snapshotId }));
-      dispatch(setComponentPlaylists({ playlistId, componentPlaylistIds: checkedPlaylistIds }));
-      dispatch(setCompositePlaylistsNeedSync(playlistId));
-    });
+    const namedTracks = await getNamedTracks(checkedPlaylistIds);
+    await updateExistingPlaylist(playlistId, namedTracks, checkedPlaylistIds);
 
     closeOverlay();
-  }, [playlistId, dispatch, closeOverlay]);
+  }, [playlistId, closeOverlay]);
 
   if (!playlistId || !playlist) {
     return <p>Could not find the specified playlist</p>;

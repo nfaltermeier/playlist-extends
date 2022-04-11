@@ -1,7 +1,12 @@
+import { batch } from 'react-redux';
 import store from '../redux/store';
-import { mergeSpotifyState, selectAllPlaylists } from '../redux/playlists';
+import {
+  mergeSpotifyState, selectAllPlaylists, setComponentPlaylists,
+  setCompositePlaylistsNeedSync, setLastSyncTracks, setSnapshotId,
+} from '../redux/playlists';
 import { refreshAccessToken } from './auth';
 import spotifyApi from './spotifyApiKeeper';
+import type { NamedTrack } from '../redux/playlists';
 
 // copy of https://github.com/DefinitelyTyped/DefinitelyTyped/blob/74b19cf32a1b2f10958f5729f798245afb1125f5/types/spotify-web-api-node/index.d.ts#L1037
 // because this interface is not exported
@@ -85,15 +90,41 @@ const fetchPlaylists = async (successCallback: () => void, failureCallback: () =
   }
 };
 
-const getTrackUris = async (playlistIds: string[]): Promise<string[]> => {
+const getNamedTracks = async (playlistIds: string[]): Promise<NamedTrack[]> => {
   const jaggedSongs = await Promise.all(playlistIds.map((playlist) => (
     paginateAndRefreshAuth((offset) => (
-      spotifyApi.getPlaylistTracks(playlist, { fields: 'items(track(uri)),total', limit: 50, offset })
+      spotifyApi.getPlaylistTracks(playlist, { fields: 'items(track(uri,name)),total', limit: 50, offset })
     ))
   )));
-  return jaggedSongs.flat().map((trackObject) => trackObject.track.uri);
+  return jaggedSongs.flat().map((trackObject) => ({ name: trackObject.track.name, uri: trackObject.track.uri }));
+};
+
+const updateExistingPlaylist = async (playlistId: string, newContent: NamedTrack[], componentPlaylistIds: string[]) => {
+  const trackUris = newContent.map((t) => t.uri);
+
+  let tracksAdded = 100;
+  let snapshotId = (await spotifyApi.replaceTracksInPlaylist(
+    playlistId,
+    trackUris.slice(0, Math.min(trackUris.length, 100))
+  )).body.snapshot_id;
+  while (tracksAdded < trackUris.length) {
+    snapshotId = (await spotifyApi.addTracksToPlaylist(
+      playlistId,
+      trackUris.slice(tracksAdded, Math.min(trackUris.length, tracksAdded + 100))
+    )).body.snapshot_id;
+    // tracksAdded will be inaccurate after the while loop, but that should be okay
+    tracksAdded += 100;
+  }
+
+  batch(() => {
+    const { dispatch } = store;
+    dispatch(setSnapshotId({ playlistId, snapshotId }));
+    dispatch(setComponentPlaylists({ playlistId, componentPlaylistIds }));
+    dispatch(setCompositePlaylistsNeedSync(playlistId));
+    dispatch(setLastSyncTracks({ playlistId, tracks: newContent }));
+  });
 };
 
 export {
-  paginateAndRefreshAuth, refreshAuthWrapper, fetchPlaylists, getTrackUris,
+  paginateAndRefreshAuth, refreshAuthWrapper, fetchPlaylists, getNamedTracks, updateExistingPlaylist,
 };
