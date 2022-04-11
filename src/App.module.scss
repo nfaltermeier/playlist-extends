@@ -5,6 +5,14 @@ body {
   color: variables.$text-color;
 }
 
+a {
+  color: #2994FF;
+
+  &:visited {
+    color: #C775DB
+  }
+}
+
 :local {
   .App {
     text-align: center;

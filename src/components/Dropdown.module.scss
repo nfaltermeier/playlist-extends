@@ -1,13 +1,11 @@
-@use '../variables';
-
 :local {
   .dropdown {
     display: inline-block;
     position: relative;
 
     .dropdownContent {
-      background: variables.$background-color;
-      box-shadow: 2px 2px 3px 0px #999999;
+      background: #424557;
+      box-shadow: 2px 2px 3px 0px #000;
       position: absolute;
       left: 0;
     }
