@@ -1,7 +1,7 @@
 import { ReactNode, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
-import Overlay from '../components/Overlay';
+import Overlay, { defaultContainerClassname } from '../components/Overlay';
 import PlaylistsPicker from '../components/PlaylistsPicker';
 import SongTree from '../components/SongTree';
 import { getNamedTracks, updateExistingPlaylist } from '../lib/api';
@@ -53,7 +53,7 @@ function EditPlaylist() {
     edit = (
       <>
         <button type="button" onClick={() => { setIsEditingPlaylist(true); }}>Edit</button>
-        <Overlay isOpen={isEditingPlaylist} closeOverlay={closeOverlay}>
+        <Overlay isOpen={isEditingPlaylist} closeOverlay={closeOverlay} containerClassname={defaultContainerClassname}>
           <PlaylistsPicker
             title={`Edit ${playlist.name}`}
             bottomMenu={null}

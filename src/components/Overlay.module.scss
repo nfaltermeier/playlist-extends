@@ -14,12 +14,6 @@
 
     > * {
       background: #282c34;
-
-      margin: 5vh auto;
-      width: 80%;
-      max-width: 650px;
-      padding: 15px;
-      min-height: 80vh;
     }
   }
 
@@ -29,5 +23,13 @@
       font-size: 1.5rem;
       margin: 4px;
     }
+  }
+
+  .defaultContainer {
+    margin: 5vh auto;
+    width: 80%;
+    max-width: 650px;
+    padding: 15px;
+    min-height: 80vh;
   }
 }

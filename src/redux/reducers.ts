@@ -23,8 +23,10 @@ const migrations = {
   },
 };
 
+export const localStorageKey = 'reduxStore';
+
 const persistConfig = {
-  key: 'reduxStore',
+  key: localStorageKey,
   whitelist: ['playlists'],
   version: 3,
   storage,

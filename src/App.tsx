@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import styles from './App.module.scss';
+import DataManagement from './components/DataManagement';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <nav>
           <NavLink to="/">Home</NavLink>
         </nav>
+        <DataManagement />
       </header>
       <main>
         <Outlet />
