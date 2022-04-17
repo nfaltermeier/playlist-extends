@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import Overlay from './Overlay';
-import { persistor, RootState } from '../redux/store';
-import { localStorageKey } from '../redux/reducers';
+import { persistor, RootState, getLocalStorageKey } from '../redux/store';
 import { useLoggedIn } from '../redux/loggedIn';
 import styles from './DataManagement.module.scss';
 
@@ -15,7 +14,7 @@ function DataManagement() {
     let dataURL: string | null = null;
     try {
       await persistor.flush();
-      const data = localStorage.getItem(`persist:${localStorageKey}`);
+      const data = localStorage.getItem(`persist:${getLocalStorageKey()}`);
       if (!data) {
         setMessage('Could not find the saved data');
         return;
@@ -44,7 +43,7 @@ function DataManagement() {
       const parsedResult = JSON.parse(result) as RootState;
       // eslint-disable-next-line no-underscore-dangle
       if (parsedResult.playlists && parsedResult._persist) {
-        localStorage.setItem(`persist:${localStorageKey}`, result);
+        localStorage.setItem(`persist:${getLocalStorageKey()}`, result);
         window.location.reload();
       } else {
         setMessage('The loaded file does not appear to be a valid Playlist Extends backup');
