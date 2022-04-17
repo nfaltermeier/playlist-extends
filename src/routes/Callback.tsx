@@ -26,7 +26,7 @@ function Callback() {
     spotifyApi.setRefreshToken(refreshToken);
     dispatch(setLoggedIn());
     const me = (await spotifyApi.getMe()).body;
-    switchToUserStore(me.id);
+    await switchToUserStore(me.id);
   }, [dispatch]);
 
   useEffect(() => {

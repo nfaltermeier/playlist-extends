@@ -16,6 +16,7 @@ import storage from 'redux-persist/lib/storage';
 import rootReducer from './reducers';
 
 import { selectAllPlaylists, setAllPlaylists } from './playlists';
+import { setMigrated } from './migratePersistOnLogin';
 
 const migrations = {
   2: (state: any): any => {
@@ -31,8 +32,7 @@ const migrations = {
       ))),
     };
   },
-  // Changing global storage to per-user storage, this will clear global storage
-  4: (): any => ({}),
+  4: (state: any): any => ({ ...state, migratePersistOnLogin: true }),
 };
 
 let localStorageKey = 'reduxStore';
@@ -40,7 +40,7 @@ export const getLocalStorageKey = () => localStorageKey;
 
 const persistConfig = {
   key: localStorageKey,
-  whitelist: ['playlists'],
+  whitelist: ['playlists', 'migratePersistOnLogin'],
   version: 4,
   storage,
   migrate: createMigrate(migrations),
@@ -57,8 +57,22 @@ const store = configureStore({
   }),
 });
 
-export const switchToUserStore = (userId: string) => {
+export const persistor = persistStore(store);
+
+export const switchToUserStore = async (userId: string) => {
   localStorageKey = `${userId}:reduxStore`;
+
+  if (store.getState().migratePersistOnLogin) {
+    store.dispatch(setMigrated());
+    await persistor.flush();
+
+    const currentState = localStorage.getItem('persist:reduxStore');
+    if (currentState !== null) {
+      localStorage.setItem(`persist:${localStorageKey}`, currentState);
+      localStorage.removeItem('persist:reduxStore');
+    }
+  }
+
   persistConfig.key = localStorageKey;
   store.replaceReducer(persistReducer(persistConfig, rootReducer));
 };
@@ -69,8 +83,6 @@ if (process.env.NODE_ENV !== 'production' && module.hot) {
     store.replaceReducer(persistReducer(persistConfig, rootReducer));
   });
 }
-
-export const persistor = persistStore(store);
 
 export default store;
 export type RootState = ReturnType<typeof store.getState>;
