@@ -99,6 +99,19 @@ const getNamedTracks = async (playlistIds: string[]): Promise<NamedTrack[]> => {
   return jaggedSongs.flat().map((trackObject) => ({ name: trackObject.track.name, uri: trackObject.track.uri }));
 };
 
+/**
+ * @param fields Must include 'total' top level field for pagination
+ * @returns Track objects with the requested fields. Probably not actually full objects.
+ */
+const getTracksWithFields = async (playlistIds: string[], fields: string): Promise<SpotifyApi.TrackObjectFull[]> => {
+  const jaggedSongs = await Promise.all(playlistIds.map((playlist) => (
+    paginateAndRefreshAuth((offset) => (
+      spotifyApi.getPlaylistTracks(playlist, { fields, limit: 50, offset })
+    ))
+  )));
+  return jaggedSongs.flat().map((t) => t.track);
+};
+
 const updateExistingPlaylist = async (playlistId: string, newContent: NamedTrack[], componentPlaylistIds: string[]) => {
   const trackUris = newContent.map((t) => t.uri);
 
@@ -126,5 +139,6 @@ const updateExistingPlaylist = async (playlistId: string, newContent: NamedTrack
 };
 
 export {
-  paginateAndRefreshAuth, refreshAuthWrapper, fetchPlaylists, getNamedTracks, updateExistingPlaylist,
+  paginateAndRefreshAuth, refreshAuthWrapper, fetchPlaylists,
+  getNamedTracks, getTracksWithFields, updateExistingPlaylist,
 };
