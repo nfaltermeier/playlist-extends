@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
-import Overlay, { defaultContainerClassname } from '../components/Overlay';
+import Overlay from '../components/Overlay';
 import NewPlaylist from '../components/NewPlaylist';
 import { usePlaylists } from '../redux/playlists';
 import styles from './Homepage.module.scss';
@@ -24,7 +24,7 @@ function Homepage() {
         <button onClick={fetchPlaylistsCallback} type="button">Refresh playlists</button>
       </div>
       {refreshPlaylistsMessage}
-      <Overlay isOpen={isCreatingPlaylist} closeOverlay={closeOverlay} containerClassname={defaultContainerClassname}>
+      <Overlay isOpen={isCreatingPlaylist} closeOverlay={closeOverlay}>
         <NewPlaylist closeOverlay={closeOverlay} />
       </Overlay>
       <table className={styles.playlistContent}>

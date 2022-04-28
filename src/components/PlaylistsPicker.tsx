@@ -4,20 +4,23 @@ import {
 import { usePlaylists } from '../redux/playlists';
 import PlaylistSearch from './PlaylistSearch';
 import styles from './PlaylistsPicker.module.scss';
+import Sorting from './SortingOverlay';
 
 type PlaylistsPickerProps = {
   title: string,
-  onSubmitCallback: (checkedPlaylistIds: string[]) => void,
+  onSubmitCallback: (checkedPlaylistIds: string[], sortSpec: string) => void,
   bottomMenu: ReactNode,
   bottomMenuContainerClassName?: string,
   submitButtonClassName?: string,
   initiallyCheckedPlaylistIds?: string[],
+  intialSortSpec?: string,
 } & typeof defaultProps;
 
 const defaultProps = {
   bottomMenuContainerClassName: '',
   submitButtonClassName: '',
   initiallyCheckedPlaylistIds: new Array<string>(),
+  intialSortSpec: 'custom;a',
 };
 
 const useForceRerender = () => {
@@ -28,7 +31,8 @@ const useForceRerender = () => {
 
 function PlaylistsPicker(props: PlaylistsPickerProps) {
   const {
-    title, onSubmitCallback, bottomMenu, bottomMenuContainerClassName, submitButtonClassName, initiallyCheckedPlaylistIds,
+    title, onSubmitCallback, bottomMenu, bottomMenuContainerClassName,
+    submitButtonClassName, initiallyCheckedPlaylistIds, intialSortSpec,
   } = props;
   const playlists = usePlaylists();
   const checkedPlaylists = useRef(new Set<string>(initiallyCheckedPlaylistIds));
@@ -40,10 +44,12 @@ function PlaylistsPicker(props: PlaylistsPickerProps) {
     forceRerender();
   }, [checkedPlaylists, forceRerender]);
 
+  const [sortSpec, setSortSpec] = useState(intialSortSpec);
+
   const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((event) => {
     event.preventDefault();
-    onSubmitCallback(Array.from(checkedPlaylists.current));
-  }, [onSubmitCallback]);
+    onSubmitCallback(Array.from(checkedPlaylists.current), sortSpec);
+  }, [onSubmitCallback, sortSpec]);
 
   let content;
   const filteredPlaylists = playlists.filter((playlist) => !playlist.deletedOnSpotify);
@@ -67,8 +73,9 @@ function PlaylistsPicker(props: PlaylistsPickerProps) {
     <form onSubmit={onSubmit}>
       <h2>{title}</h2>
       <PlaylistSearch onPlaylistSelected={togglePlaylist} />
+      <Sorting initialSpec={intialSortSpec} saveCallback={setSortSpec} />
       <div className={styles.optionsList}>{content}</div>
-      <div className={bottomMenuContainerClassName}>
+      <div className={`${bottomMenuContainerClassName} ${styles.bottomContainer}`}>
         {bottomMenu}
         <div>
           <input id="submit" type="submit" value="Save" className={submitButtonClassName} />

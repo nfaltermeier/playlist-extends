@@ -4,7 +4,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { refreshAuthWrapper } from '../lib/api';
 import store from '../redux/store';
-import { selectPlaylistById, prependPlaylist } from '../redux/playlists';
+import { selectPlaylistById, prependPlaylist, defaultSortSpec } from '../redux/playlists';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import Dropdown from './Dropdown';
 import styles from './PlaylistSearch.module.scss';
@@ -143,6 +143,7 @@ function PlaylistSearch({ onPlaylistSelected }: { onPlaylistSelected: (id: strin
         deletedOnSpotify: false,
         isUserPlaylist: false,
         lastSyncTracks: [],
+        sortSpec: defaultSortSpec,
       }));
     }
     onPlaylistSelected(playlist.id);

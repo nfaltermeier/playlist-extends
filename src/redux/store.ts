@@ -15,7 +15,7 @@ import {
 import storage from 'redux-persist/lib/storage';
 import rootReducer from './reducers';
 
-import { selectAllPlaylists, setAllPlaylists } from './playlists';
+import { defaultSortSpec, selectAllPlaylists, setAllPlaylists } from './playlists';
 import { setMigrated } from './migratePersistOnLogin';
 
 const migrations = {
@@ -33,6 +33,10 @@ const migrations = {
     };
   },
   4: (state: any): any => ({ ...state, migratePersistOnLogin: true }),
+  5: (state: any): any => {
+    const playlists = selectAllPlaylists(state);
+    return { ...state, playlists: setAllPlaylists(state.playlists, playlists.map((playlist) => ({ ...playlist, sortSpec: defaultSortSpec }))) };
+  },
 };
 
 let localStorageKey = 'reduxStore';
@@ -41,7 +45,7 @@ export const getLocalStorageKey = () => localStorageKey;
 const persistConfig = {
   key: localStorageKey,
   whitelist: ['playlists', 'migratePersistOnLogin'],
-  version: 4,
+  version: 5,
   storage,
   migrate: createMigrate(migrations),
 };

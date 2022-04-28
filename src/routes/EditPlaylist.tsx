@@ -1,13 +1,12 @@
 import { ReactNode, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
-import Overlay, { defaultContainerClassname } from '../components/Overlay';
+import Overlay from '../components/Overlay';
 import PlaylistsPicker from '../components/PlaylistsPicker';
 import SongTree from '../components/SongTree';
-import { getNamedTracks, updateExistingPlaylist } from '../lib/api';
-import {
-  usePlaylistById, deletePlaylist,
-} from '../redux/playlists';
+import { updateExistingPlaylist } from '../lib/api';
+import { getSortedPlaylist } from '../lib/sorting';
+import { usePlaylistById, deletePlaylist, setSortSpec } from '../redux/playlists';
 
 function EditPlaylist() {
   const dispatch = useDispatch();
@@ -17,14 +16,15 @@ function EditPlaylist() {
 
   const [isEditingPlaylist, setIsEditingPlaylist] = useState(false);
   const closeOverlay = useCallback(() => { setIsEditingPlaylist(false); }, [setIsEditingPlaylist]);
-  const onSubmitCallback = useCallback(async (checkedPlaylistIds: string[]) => {
+  const onSubmitCallback = useCallback(async (checkedPlaylistIds: string[], sortSpec: string) => {
     if (checkedPlaylistIds.length === 0 || !playlistId) { return; }
 
-    const namedTracks = await getNamedTracks(checkedPlaylistIds);
+    dispatch(setSortSpec({ playlistId, spec: sortSpec }));
+    const namedTracks = await getSortedPlaylist(checkedPlaylistIds, sortSpec);
     await updateExistingPlaylist(playlistId, namedTracks, checkedPlaylistIds);
 
     closeOverlay();
-  }, [playlistId, closeOverlay]);
+  }, [playlistId, closeOverlay, dispatch]);
 
   if (!playlistId || !playlist) {
     return <p>Could not find the specified playlist</p>;
@@ -53,12 +53,13 @@ function EditPlaylist() {
     edit = (
       <>
         <button type="button" onClick={() => { setIsEditingPlaylist(true); }}>Edit</button>
-        <Overlay isOpen={isEditingPlaylist} closeOverlay={closeOverlay} containerClassname={defaultContainerClassname}>
+        <Overlay isOpen={isEditingPlaylist} closeOverlay={closeOverlay}>
           <PlaylistsPicker
             title={`Edit ${playlist.name}`}
             bottomMenu={null}
             onSubmitCallback={onSubmitCallback}
             initiallyCheckedPlaylistIds={playlist.componentPlaylistIds}
+            intialSortSpec={playlist.sortSpec}
           />
         </Overlay>
       </>

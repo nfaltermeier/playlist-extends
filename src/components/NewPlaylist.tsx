@@ -1,19 +1,19 @@
 import { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import PlaylistsPicker from './PlaylistsPicker';
-import { getNamedTracks } from '../lib/api';
 import { prependPlaylist } from '../redux/playlists';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import styles from './NewPlaylist.module.scss';
+import { getSortedPlaylist } from '../lib/sorting';
 
 function NewPlaylist({ closeOverlay }: { closeOverlay: () => void }) {
   const dispatch = useDispatch();
   const newPlaylistName = useRef<HTMLInputElement>(null);
 
-  const onSubmitCallback = useCallback(async (checkedPlaylistIds: string[]) => {
+  const onSubmitCallback = useCallback(async (checkedPlaylistIds: string[], sortSpec: string) => {
     if (!newPlaylistName.current || checkedPlaylistIds.length === 0) { return; }
 
-    const namedTracks = await getNamedTracks(checkedPlaylistIds);
+    const namedTracks = await getSortedPlaylist(checkedPlaylistIds, sortSpec);
     const trackUris = namedTracks.map((t) => t.uri);
 
     const playlistName = newPlaylistName.current.value;
@@ -41,6 +41,7 @@ function NewPlaylist({ closeOverlay }: { closeOverlay: () => void }) {
       deletedOnSpotify: false,
       isUserPlaylist: true,
       lastSyncTracks: namedTracks,
+      sortSpec,
     }));
     closeOverlay();
   }, [dispatch, closeOverlay]);

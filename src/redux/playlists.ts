@@ -16,8 +16,11 @@ export interface ExtendablePlaylist {
   readonly deletedOnSpotify: boolean,
   readonly isUserPlaylist: boolean,
   // The track URIs as of the last sync, only stored for composite playlists
-  readonly lastSyncTracks: NamedTrack[]
+  readonly lastSyncTracks: NamedTrack[],
+  readonly sortSpec: string,
 }
+
+export const defaultSortSpec = 'custom;a';
 
 const playlistsAdapter = createEntityAdapter<ExtendablePlaylist>();
 const localSelectors = playlistsAdapter.getSelectors();
@@ -115,6 +118,7 @@ const playlistsSlice = createSlice({
             deletedOnSpotify: false,
             isUserPlaylist: true,
             lastSyncTracks: [],
+            sortSpec: defaultSortSpec,
           });
         }
       });
@@ -189,6 +193,9 @@ const playlistsSlice = createSlice({
     setLastSyncTracks(state, action: PayloadAction<{ playlistId: string, tracks: NamedTrack[] }>) {
       playlistsAdapter.updateOne(state, { id: action.payload.playlistId, changes: { lastSyncTracks: action.payload.tracks } });
     },
+    setSortSpec(state, action: PayloadAction<{ playlistId: string, spec: string }>) {
+      playlistsAdapter.updateOne(state, { id: action.payload.playlistId, changes: { sortSpec: action.payload.spec } });
+    },
   },
 });
 
@@ -201,7 +208,7 @@ export const usePlaylistById = (id: string) => useSelector((state: RootState) =>
 export const {
   prependPlaylist, mergeSpotifyState, setName, setSnapshotId,
   setComponentPlaylists, testResetNeedsSync, setCompositePlaylistsNeedSync, deletePlaylist,
-  setLastSyncTracks,
+  setLastSyncTracks, setSortSpec,
 } = playlistsSlice.actions;
 export default playlistsSlice.reducer;
 /**
