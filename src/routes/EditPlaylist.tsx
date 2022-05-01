@@ -4,9 +4,12 @@ import { useNavigate, useParams } from 'react-router';
 import Overlay from '../components/Overlay';
 import PlaylistsPicker from '../components/PlaylistsPicker';
 import SongTree from '../components/SongTree';
-import { updateExistingPlaylist } from '../lib/api';
+import store from '../redux/store';
+import { replaceDeletedPlaylist, updateExistingPlaylist } from '../lib/api';
 import { getSortedPlaylist } from '../lib/sorting';
-import { usePlaylistById, deletePlaylist, setSortSpec } from '../redux/playlists';
+import {
+  usePlaylistById, deletePlaylist, setSortSpec, hasDeletedComponent,
+} from '../redux/playlists';
 
 function EditPlaylist() {
   const dispatch = useDispatch();
@@ -30,11 +33,41 @@ function EditPlaylist() {
     return <p>Could not find the specified playlist</p>;
   }
 
-  if (playlist.deletedOnSpotify && playlist.componentPlaylistIds.length === 0) {
+  if (playlist.deletedOnSpotify) {
+    let content: ReactNode = null;
+
+    if (playlist.componentPlaylistIds.length > 0 && !hasDeletedComponent(store.getState(), playlist.id)) {
+      content = (
+        <>
+          <p>This playlist was deleted on Spotify, but can be recreated.</p>
+          <button
+            type="button"
+            onClick={async () => {
+              const namedTracks = await getSortedPlaylist(playlist.componentPlaylistIds, playlist.sortSpec);
+
+              const newPlaylistId = await replaceDeletedPlaylist(playlist.id, namedTracks);
+              navigate(`/playlist/${newPlaylistId}`);
+            }}
+          >
+            Recreate Playlist on Spotify
+          </button>
+        </>
+      );
+    } else if (playlist.componentPlaylistIds.length === 0) {
+      content = <p>This playlist was deleted on Spotify and was not a composite playlist.</p>;
+    } else {
+      content = (
+        <p>
+          {'This playlist was deleted on Spotify and a necessary component playlist was also deleted,'
+            + ' so the playlist cannot be recreated.'}
+        </p>
+      );
+    }
+
     return (
       <div>
         <h2>{playlist.name}</h2>
-        <p>This playlist was deleted on Spotify and was not a composite playlist.</p>
+        {content}
         <button
           type="button"
           onClick={() => {

@@ -196,6 +196,20 @@ const playlistsSlice = createSlice({
     setSortSpec(state, action: PayloadAction<{ playlistId: string, spec: string }>) {
       playlistsAdapter.updateOne(state, { id: action.payload.playlistId, changes: { sortSpec: action.payload.spec } });
     },
+    replacePlaylist(state, action: PayloadAction<{ oldId: string, newId: string }>) {
+      const { oldId, newId } = action.payload;
+      state.ids.forEach((id) => {
+        const playlist = state.entities[id];
+        if (!playlist) {
+          return;
+        }
+        const i = playlist.componentPlaylistIds.indexOf(oldId);
+        if (i !== -1) {
+          playlist.componentPlaylistIds = new Array(...playlist.componentPlaylistIds);
+          playlist.componentPlaylistIds.splice(i, 1, newId);
+        }
+      });
+    },
   },
 });
 
@@ -203,12 +217,37 @@ export const {
   selectAll: selectAllPlaylists,
   selectById: selectPlaylistById,
 } = playlistsAdapter.getSelectors((state: RootState) => state.playlists);
+
+export const hasDeletedComponent = (state: RootState, playlistId: string): boolean => {
+  const playlist = selectPlaylistById(state, playlistId);
+  if (!playlist) {
+    return true;
+  }
+
+  const checked = new Set<string>();
+  const queue = new Array(...playlist.componentPlaylistIds);
+  while (queue.length > 0) {
+    const toCheckId = queue.pop() as string;
+    if (checked.has(toCheckId)) {
+      continue;
+    }
+    const toCheck = selectPlaylistById(state, toCheckId);
+    if (!toCheck || (toCheck.deletedOnSpotify && toCheck.componentPlaylistIds.length === 0)) {
+      return true;
+    }
+    checked.add(toCheckId);
+    queue.push(...toCheck.componentPlaylistIds);
+  }
+
+  return false;
+};
+
 export const usePlaylists = () => useSelector(selectAllPlaylists);
 export const usePlaylistById = (id: string) => useSelector((state: RootState) => selectPlaylistById(state, id));
 export const {
   prependPlaylist, mergeSpotifyState, setName, setSnapshotId,
   setComponentPlaylists, testResetNeedsSync, setCompositePlaylistsNeedSync, deletePlaylist,
-  setLastSyncTracks, setSortSpec,
+  setLastSyncTracks, setSortSpec, replacePlaylist,
 } = playlistsSlice.actions;
 export default playlistsSlice.reducer;
 /**

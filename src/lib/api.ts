@@ -2,7 +2,7 @@ import { batch } from 'react-redux';
 import store from '../redux/store';
 import {
   mergeSpotifyState, selectAllPlaylists, setComponentPlaylists,
-  setCompositePlaylistsNeedSync, setLastSyncTracks, setSnapshotId,
+  setCompositePlaylistsNeedSync, setLastSyncTracks, setSnapshotId, prependPlaylist, selectPlaylistById, replacePlaylist, deletePlaylist,
 } from '../redux/playlists';
 import { refreshAccessToken } from './auth';
 import spotifyApi from './spotifyApiKeeper';
@@ -103,6 +103,38 @@ const getTracksWithFields = async (playlistIds: string[], fields: string): Promi
   return jaggedSongs.flat().map((t) => t.track);
 };
 
+const createNewPlaylist = async (playlistName: string, content: NamedTrack[], checkedPlaylistIds: string[], sortSpec: string): Promise<string> => {
+  const { dispatch } = store;
+  const trackUris = content.map((t) => t.uri);
+
+  // temporarily make everything private for testing
+  const playlistId = (await spotifyApi.createPlaylist(playlistName, { public: false })).body.id;
+
+  let tracksAdded = 0;
+  let snapshotId;
+  do {
+    snapshotId = (await spotifyApi.addTracksToPlaylist(
+      playlistId,
+      trackUris.slice(tracksAdded, Math.min(trackUris.length, tracksAdded + 100)),
+      { position: tracksAdded }
+    )).body.snapshot_id;
+    // tracksAdded will be inaccurate after the while loop, but that should be okay
+    tracksAdded += 100;
+  } while (tracksAdded < trackUris.length);
+  dispatch(prependPlaylist({
+    id: playlistId,
+    name: playlistName,
+    snapshotId,
+    componentPlaylistIds: checkedPlaylistIds,
+    needsSync: false,
+    deletedOnSpotify: false,
+    isUserPlaylist: true,
+    lastSyncTracks: content,
+    sortSpec,
+  }));
+  return playlistId;
+};
+
 const updateExistingPlaylist = async (playlistId: string, newContent: NamedTrack[], componentPlaylistIds: string[]) => {
   const trackUris = newContent.map((t) => t.uri);
 
@@ -129,7 +161,19 @@ const updateExistingPlaylist = async (playlistId: string, newContent: NamedTrack
   });
 };
 
+const replaceDeletedPlaylist = async (playlistId: string, content: NamedTrack[]): Promise<string> => {
+  const { dispatch } = store;
+  const playlist = selectPlaylistById(store.getState(), playlistId);
+  if (!playlist) {
+    throw new Error(`Trying to replace playlist that doesn't exist '${playlistId}'`);
+  }
+  const newId = await createNewPlaylist(playlist.name, content, playlist.componentPlaylistIds, playlist.sortSpec);
+  dispatch(replacePlaylist({ oldId: playlistId, newId }));
+  dispatch(deletePlaylist(playlistId));
+  return newId;
+};
+
 export {
   paginateAndRefreshAuth, refreshAuthWrapper, fetchPlaylists,
-  getTracksWithFields, updateExistingPlaylist,
+  getTracksWithFields, createNewPlaylist, updateExistingPlaylist, replaceDeletedPlaylist,
 };

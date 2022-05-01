@@ -89,6 +89,7 @@
       "max-len": "off",
       "no-await-in-loop": "off",
       "no-console": "off",
+      "no-continue": "off",
       "@typescript-eslint/comma-dangle": [
         "error",
         {
