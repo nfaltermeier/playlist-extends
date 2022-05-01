@@ -7,6 +7,7 @@ import {
 import { refreshAccessToken } from './auth';
 import spotifyApi from './spotifyApiKeeper';
 import type { NamedTrack } from '../redux/playlists';
+import { setDefaultPublicPlaylists } from '../redux/preferences';
 
 // copy of https://github.com/DefinitelyTyped/DefinitelyTyped/blob/74b19cf32a1b2f10958f5729f798245afb1125f5/types/spotify-web-api-node/index.d.ts#L1037
 // because this interface is not exported
@@ -103,12 +104,11 @@ const getTracksWithFields = async (playlistIds: string[], fields: string): Promi
   return jaggedSongs.flat().map((t) => t.track);
 };
 
-const createNewPlaylist = async (playlistName: string, content: NamedTrack[], checkedPlaylistIds: string[], sortSpec: string): Promise<string> => {
+const createNewPlaylist = async (playlistName: string, content: NamedTrack[], checkedPlaylistIds: string[], sortSpec: string, publicPlaylist: boolean): Promise<string> => {
   const { dispatch } = store;
   const trackUris = content.map((t) => t.uri);
 
-  // temporarily make everything private for testing
-  const playlistId = (await spotifyApi.createPlaylist(playlistName, { public: false })).body.id;
+  const playlistId = (await spotifyApi.createPlaylist(playlistName, { public: publicPlaylist })).body.id;
 
   let tracksAdded = 0;
   let snapshotId;
@@ -132,6 +132,7 @@ const createNewPlaylist = async (playlistName: string, content: NamedTrack[], ch
     lastSyncTracks: content,
     sortSpec,
   }));
+  dispatch(setDefaultPublicPlaylists(publicPlaylist));
   return playlistId;
 };
 
@@ -161,13 +162,13 @@ const updateExistingPlaylist = async (playlistId: string, newContent: NamedTrack
   });
 };
 
-const replaceDeletedPlaylist = async (playlistId: string, content: NamedTrack[]): Promise<string> => {
+const replaceDeletedPlaylist = async (playlistId: string, content: NamedTrack[], publicPlaylist: boolean): Promise<string> => {
   const { dispatch } = store;
   const playlist = selectPlaylistById(store.getState(), playlistId);
   if (!playlist) {
     throw new Error(`Trying to replace playlist that doesn't exist '${playlistId}'`);
   }
-  const newId = await createNewPlaylist(playlist.name, content, playlist.componentPlaylistIds, playlist.sortSpec);
+  const newId = await createNewPlaylist(playlist.name, content, playlist.componentPlaylistIds, playlist.sortSpec, publicPlaylist);
   dispatch(replacePlaylist({ oldId: playlistId, newId }));
   dispatch(deletePlaylist(playlistId));
   return newId;

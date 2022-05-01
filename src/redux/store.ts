@@ -44,7 +44,7 @@ export const getLocalStorageKey = () => localStorageKey;
 
 const persistConfig = {
   key: localStorageKey,
-  whitelist: ['playlists', 'migratePersistOnLogin'],
+  whitelist: ['playlists', 'migratePersistOnLogin', 'preferences'],
   version: 5,
   storage,
   migrate: createMigrate(migrations),

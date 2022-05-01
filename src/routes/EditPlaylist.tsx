@@ -1,4 +1,6 @@
-import { ReactNode, useCallback, useState } from 'react';
+import {
+  ReactNode, useCallback, useRef, useState,
+} from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 import Overlay from '../components/Overlay';
@@ -10,6 +12,7 @@ import { getSortedPlaylist } from '../lib/sorting';
 import {
   usePlaylistById, deletePlaylist, setSortSpec, hasDeletedComponent,
 } from '../redux/playlists';
+import { useDefaultPublicPlaylists } from '../redux/preferences';
 
 function EditPlaylist() {
   const dispatch = useDispatch();
@@ -29,6 +32,11 @@ function EditPlaylist() {
     closeOverlay();
   }, [playlistId, closeOverlay, dispatch]);
 
+  const publicPlaylistInput = useRef<HTMLInputElement>(null);
+  const defaultPublic = useDefaultPublicPlaylists();
+  const [publicPlaylist, setPublicPlaylist] = useState(defaultPublic);
+  const togglePublicPlaylist = useCallback(() => setPublicPlaylist((p) => !p), []);
+
   if (!playlistId || !playlist) {
     return <p>Could not find the specified playlist</p>;
   }
@@ -40,12 +48,24 @@ function EditPlaylist() {
       content = (
         <>
           <p>This playlist was deleted on Spotify, but can be recreated.</p>
+          <div>
+            <label htmlFor="PublicPlaylist">
+              {'Recreate playlist as public: '}
+              <input
+                id="PublicPlaylist"
+                type="checkbox"
+                ref={publicPlaylistInput}
+                checked={publicPlaylist}
+                onChange={togglePublicPlaylist}
+              />
+            </label>
+          </div>
           <button
             type="button"
             onClick={async () => {
               const namedTracks = await getSortedPlaylist(playlist.componentPlaylistIds, playlist.sortSpec);
 
-              const newPlaylistId = await replaceDeletedPlaylist(playlist.id, namedTracks);
+              const newPlaylistId = await replaceDeletedPlaylist(playlist.id, namedTracks, publicPlaylist);
               navigate(`/playlist/${newPlaylistId}`);
             }}
           >
