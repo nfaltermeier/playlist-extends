@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import store, { persistor } from './redux/store';
 import AppRoutes from './AppRoutes';
-import './index.css';
+import './index.scss';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
