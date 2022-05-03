@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router';
 import { useStore } from 'react-redux';
+import { Link } from 'react-router-dom';
 import Overlay from '../components/Overlay';
 import NewPlaylist from '../components/NewPlaylist';
 import { usePlaylists } from '../redux/playlists';
@@ -9,7 +9,6 @@ import { fetchPlaylists, syncMultiplePlaylists } from '../lib/api';
 import { makeSyncOrder } from '../lib/playlistsHelper';
 
 function Homepage() {
-  const navigate = useNavigate();
   const playlists = usePlaylists();
   const store = useStore();
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
@@ -75,9 +74,9 @@ function Homepage() {
                 <td>{type}</td>
                 <td>{status}</td>
                 <td>
-                  <button type="button" onClick={() => { navigate(`playlist/${playlist.id}`); }}>
+                  <Link to={`/playlist/${playlist.id}`}>
                     {playlist.componentPlaylistIds.length > 0 ? 'Edit' : 'View'}
-                  </button>
+                  </Link>
                 </td>
               </tr>
             );
