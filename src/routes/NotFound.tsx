@@ -5,7 +5,7 @@ function NotFound() {
   return (
     <div>
       <p>No page could be found at the given URL.</p>
-      <button type="button" onClick={() => { navigate('/'); }}>Go Home</button>
+      <button type="button" onClick={() => { navigate('/home'); }}>Go Home</button>
     </div>
   );
 }

@@ -9,14 +9,16 @@ import StateError from './routes/StateError';
 import NotFound from './routes/NotFound';
 import LoginGate from './routes/LoginGate';
 import Privacy from './routes/Privacy';
+import Introduction from './routes/Introduction';
 
 function AppRoutes() {
   return (
     <HashRouter>
       <Routes>
         <Route path="/" element={<App />}>
+          <Route path="/" element={<Introduction />} />
           <Route element={<LoginGate />}>
-            <Route path="/" element={<Homepage />} />
+            <Route path="/home" element={<Homepage />} />
             <Route path="playlist/:playlistId" element={<EditPlaylist />} />
           </Route>
           <Route path="callback" element={<Callback />} />

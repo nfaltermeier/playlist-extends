@@ -21,10 +21,13 @@ such as routes that don't use LoginGate
 */
 let playlistsRetrieved = false;
 
+const defaultProps = { altLoginRequired: null, altLoggedIn: null };
+
 /**
- * Only renders sub-routes when the user has logged in to spotify and playlists have been retrieved
+ * Only renders sub-routes when the user has logged in to spotify and playlists have been retrieved.
+ * If altLoggedIn is provided then sub-routes will not be rendered.
  */
-function LoginGate() {
+function LoginGate({ altLoginRequired, altLoggedIn }: { altLoginRequired?: ReactNode, altLoggedIn?: ReactNode }) {
   const location = useLocation();
   const loggedIn = useLoggedIn();
   const [loginUrlState, setloginUrlState] = useState<LoginUrlState>({ isLoading: !loggedIn, isErrored: false, loginUrl: undefined });
@@ -62,7 +65,7 @@ function LoginGate() {
     } else {
       content = (
         <>
-          {'This page requires you to log in through Spotify. '}
+          {altLoginRequired || 'This page requires you to log in through Spotify. '}
           <button
             type="button"
             onClick={() => {
@@ -86,9 +89,11 @@ function LoginGate() {
   return (
     <div>
       {content}
-      {loggedIn && playlistsRetrieved && <Outlet />}
+      {(loggedIn && playlistsRetrieved) && (altLoggedIn || <Outlet />)}
     </div>
   );
 }
+
+LoginGate.defaultProps = defaultProps;
 
 export default LoginGate;

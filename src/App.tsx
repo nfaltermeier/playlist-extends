@@ -11,7 +11,7 @@ function App() {
         <h1>Playlist Extends</h1>
         <div className={styles.topNavContainer}>
           <nav className={styles.topNav}>
-            <NavLink to="/">Home</NavLink>
+            <NavLink to="/home">Home</NavLink>
           </nav>
           <DataManagement buttonClassname={styles.navMargin} />
           <img src={SpotifyLogo} className={styles.spotifyLogo} alt="Spotify logo" />
@@ -21,7 +21,8 @@ function App() {
         <Outlet />
       </main>
       <div className={styles.bottomNav}>
-        <NavLink to="/">Home</NavLink>
+        <NavLink to="/">Introduction</NavLink>
+        <NavLink to="/home">Home</NavLink>
         <NavLink to="/privacy">Privacy Policy</NavLink>
       </div>
     </div>

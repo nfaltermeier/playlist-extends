@@ -88,7 +88,7 @@ function EditPlaylist() {
           type="button"
           onClick={() => {
             dispatch(deletePlaylist(playlistId));
-            navigate('/');
+            navigate('/home');
           }}
         >
           Remove playlist from Playlist Extends

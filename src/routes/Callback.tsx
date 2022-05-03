@@ -49,7 +49,10 @@ function Callback() {
       loginCallback(result.access_token, result.refresh_token)
     )).then(() => {
       setState({ isLoading: false, isErrored: false });
-      const redirect = loadLastLocation() || '/';
+      let redirect = loadLastLocation() || '/home';
+      if (redirect === '/') {
+        redirect = '/home';
+      }
       window.sessionStorage.clear();
       navigate(redirect, { replace: true });
     }).catch((err) => {
