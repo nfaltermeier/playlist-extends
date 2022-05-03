@@ -1,4 +1,5 @@
 import { batch } from 'react-redux';
+import { Mutex } from 'async-mutex';
 import store from '../redux/store';
 import {
   mergeSpotifyState, selectAllPlaylists, setComponentPlaylists,
@@ -18,6 +19,7 @@ interface Response<T> {
   statusCode: number;
 }
 
+const authRefreshMutex = new Mutex();
 const refreshAuthWrapper = async <T>(requestFn: () => Promise<T>): Promise<T> => {
   try {
     const result = await requestFn();
@@ -26,9 +28,15 @@ const refreshAuthWrapper = async <T>(requestFn: () => Promise<T>): Promise<T> =>
     if (e.body && e.body.error && e.body.error.status === 401 && e.body.error.message === 'The access token expired') {
       const refreshToken = spotifyApi.getRefreshToken();
       if (refreshToken) {
-        console.log('trying to refresh access token');
-        const response = await refreshAccessToken(refreshToken);
-        spotifyApi.setAccessToken(response.access_token);
+        if (authRefreshMutex.isLocked()) {
+          await authRefreshMutex.waitForUnlock();
+        } else {
+          await authRefreshMutex.runExclusive(async () => {
+            console.log('trying to refresh access token');
+            const response = await refreshAccessToken(refreshToken);
+            spotifyApi.setAccessToken(response.access_token);
+          });
+        }
 
         const result = await requestFn();
         return result;
