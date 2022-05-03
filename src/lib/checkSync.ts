@@ -26,17 +26,15 @@ export default function checkSync(oldTracks: NamedTrack[], newTracks: NamedTrack
     uri: r.uri, name: r.name, removed: true, added: false, reordered: false,
   }));
 
-  let skipped = 0;
-  return result.concat(newTracks.map((n, i) => {
+  return result.concat(newTracks.map((n) => {
     if (added.findIndex((e) => e.uri === n.uri) !== -1) {
-      skipped += 1;
       return {
         uri: n.uri, name: n.name, added: true, removed: false, reordered: false,
       };
     }
 
     return {
-      uri: n.uri, name: n.name, reordered: common[i - skipped].uri !== n.uri, removed: false, added: false,
+      uri: n.uri, name: n.name, reordered: false, removed: false, added: false,
     };
   }));
 }
