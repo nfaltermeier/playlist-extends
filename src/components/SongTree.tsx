@@ -1,10 +1,11 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { paginateAndRefreshAuth, updateExistingPlaylist } from '../lib/api';
+import { paginateAndRefreshAuth } from '../lib/api';
 import checkSync, { SyncCheckResult } from '../lib/checkSync';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import { ExtendablePlaylist, selectPlaylistById, NamedTrack } from '../redux/playlists';
 import store from '../redux/store';
 import styles from './SongTree.module.scss';
+import SyncButton from './SyncButton';
 
 type SubPlaylist = {
   id: string,
@@ -112,23 +113,10 @@ function SongTree({ topPlaylist }: { topPlaylist: ExtendablePlaylist }) {
       return true;
     });
 
-    const syncOnClick = () => {
-      // Filter out removed songs and ensure other properties aren't saved in the redux store
-      const finalSongs = data.sync.filter((s) => !s.removed).map((s) => ({ name: s.name, uri: s.uri }));
-      updateExistingPlaylist(topPlaylist.id, finalSongs, topPlaylist.componentPlaylistIds);
-    };
-
     content = (
       <>
         {topPlaylist.needsSync && (
-          <div>
-            <button
-              type="button"
-              onClick={syncOnClick}
-            >
-              Sync to Spotify
-            </button>
-          </div>
+          <SyncButton playlist={topPlaylist} />
         )}
         <div className={styles.treeRoot}>
           <ul>

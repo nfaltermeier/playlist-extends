@@ -218,30 +218,6 @@ export const {
   selectById: selectPlaylistById,
 } = playlistsAdapter.getSelectors((state: RootState) => state.playlists);
 
-export const hasDeletedComponent = (state: RootState, playlistId: string): boolean => {
-  const playlist = selectPlaylistById(state, playlistId);
-  if (!playlist) {
-    return true;
-  }
-
-  const checked = new Set<string>();
-  const queue = new Array(...playlist.componentPlaylistIds);
-  while (queue.length > 0) {
-    const toCheckId = queue.pop() as string;
-    if (checked.has(toCheckId)) {
-      continue;
-    }
-    const toCheck = selectPlaylistById(state, toCheckId);
-    if (!toCheck || (toCheck.deletedOnSpotify && toCheck.componentPlaylistIds.length === 0)) {
-      return true;
-    }
-    checked.add(toCheckId);
-    queue.push(...toCheck.componentPlaylistIds);
-  }
-
-  return false;
-};
-
 export const usePlaylists = () => useSelector(selectAllPlaylists);
 export const usePlaylistById = (id: string) => useSelector((state: RootState) => selectPlaylistById(state, id));
 export const {

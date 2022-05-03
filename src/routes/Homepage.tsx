@@ -1,14 +1,17 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useStore } from 'react-redux';
 import Overlay from '../components/Overlay';
 import NewPlaylist from '../components/NewPlaylist';
 import { usePlaylists } from '../redux/playlists';
 import styles from './Homepage.module.scss';
-import { fetchPlaylists } from '../lib/api';
+import { fetchPlaylists, syncMultiplePlaylists } from '../lib/api';
+import { makeSyncOrder } from '../lib/playlistsHelper';
 
 function Homepage() {
   const navigate = useNavigate();
   const playlists = usePlaylists();
+  const store = useStore();
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
   const closeOverlay = useCallback(() => { setIsCreatingPlaylist(false); }, [setIsCreatingPlaylist]);
   const [refreshPlaylistsMessage, setRefreshPlaylistsMessage] = useState<null | string>(null);
@@ -22,6 +25,18 @@ function Homepage() {
       <div>
         <button onClick={() => { setIsCreatingPlaylist(true); }} type="button">New Playlist</button>
         <button onClick={fetchPlaylistsCallback} type="button">Refresh playlists</button>
+        {playlists.some((p) => p.needsSync) && (
+          <button
+            onClick={() => {
+              syncMultiplePlaylists(
+                makeSyncOrder(store.getState(), playlists.filter((p) => p.needsSync).map((p) => p.id))
+              );
+            }}
+            type="button"
+          >
+            Sync all playlists
+          </button>
+        )}
       </div>
       {refreshPlaylistsMessage}
       <Overlay isOpen={isCreatingPlaylist} closeOverlay={closeOverlay}>

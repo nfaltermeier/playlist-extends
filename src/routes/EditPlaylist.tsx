@@ -8,9 +8,9 @@ import PlaylistsPicker from '../components/PlaylistsPicker';
 import SongTree from '../components/SongTree';
 import store from '../redux/store';
 import { replaceDeletedPlaylist, updateExistingPlaylist } from '../lib/api';
-import { getSortedPlaylist } from '../lib/sorting';
+import { hasDeletedComponent } from '../lib/playlistsHelper';
 import {
-  usePlaylistById, deletePlaylist, setSortSpec, hasDeletedComponent,
+  usePlaylistById, deletePlaylist,
 } from '../redux/playlists';
 import { useDefaultPublicPlaylists } from '../redux/preferences';
 
@@ -22,15 +22,13 @@ function EditPlaylist() {
 
   const [isEditingPlaylist, setIsEditingPlaylist] = useState(false);
   const closeOverlay = useCallback(() => { setIsEditingPlaylist(false); }, [setIsEditingPlaylist]);
-  const onSubmitCallback = useCallback(async (checkedPlaylistIds: string[], sortSpec: string) => {
+  const onEditOverlaySubmit = useCallback(async (checkedPlaylistIds: string[], sortSpec: string) => {
     if (checkedPlaylistIds.length === 0 || !playlistId) { return; }
 
-    dispatch(setSortSpec({ playlistId, spec: sortSpec }));
-    const namedTracks = await getSortedPlaylist(checkedPlaylistIds, sortSpec);
-    await updateExistingPlaylist(playlistId, namedTracks, checkedPlaylistIds);
+    await updateExistingPlaylist(playlistId, checkedPlaylistIds, sortSpec);
 
     closeOverlay();
-  }, [playlistId, closeOverlay, dispatch]);
+  }, [playlistId, closeOverlay]);
 
   const publicPlaylistInput = useRef<HTMLInputElement>(null);
   const defaultPublic = useDefaultPublicPlaylists();
@@ -63,9 +61,7 @@ function EditPlaylist() {
           <button
             type="button"
             onClick={async () => {
-              const namedTracks = await getSortedPlaylist(playlist.componentPlaylistIds, playlist.sortSpec);
-
-              const newPlaylistId = await replaceDeletedPlaylist(playlist.id, namedTracks, publicPlaylist);
+              const newPlaylistId = await replaceDeletedPlaylist(playlist.id, publicPlaylist);
               navigate(`/playlist/${newPlaylistId}`);
             }}
           >
@@ -74,7 +70,7 @@ function EditPlaylist() {
         </>
       );
     } else if (playlist.componentPlaylistIds.length === 0) {
-      content = <p>This playlist was deleted on Spotify and was not a composite playlist.</p>;
+      content = <p>This playlist was deleted on Spotify and was not a composite playlist. It cannot be recreated.</p>;
     } else {
       content = (
         <p>
@@ -110,7 +106,7 @@ function EditPlaylist() {
           <PlaylistsPicker
             title={`Edit ${playlist.name}`}
             bottomMenu={null}
-            onSubmitCallback={onSubmitCallback}
+            onSubmitCallback={onEditOverlaySubmit}
             initiallyCheckedPlaylistIds={playlist.componentPlaylistIds}
             intialSortSpec={playlist.sortSpec}
           />

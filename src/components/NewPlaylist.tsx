@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import PlaylistsPicker from './PlaylistsPicker';
 import styles from './NewPlaylist.module.scss';
-import { getSortedPlaylist } from '../lib/sorting';
 import { createNewPlaylist } from '../lib/api';
 import { useDefaultPublicPlaylists } from '../redux/preferences';
 
@@ -14,9 +13,8 @@ function NewPlaylist({ closeOverlay }: { closeOverlay: () => void }) {
 
   const onSubmitCallback = useCallback(async (checkedPlaylistIds: string[], sortSpec: string) => {
     if (!newPlaylistName.current || checkedPlaylistIds.length === 0) { return; }
-    const namedTracks = await getSortedPlaylist(checkedPlaylistIds, sortSpec);
 
-    await createNewPlaylist(newPlaylistName.current.value, namedTracks, checkedPlaylistIds, sortSpec, publicPlaylist);
+    await createNewPlaylist(newPlaylistName.current.value, checkedPlaylistIds, sortSpec, publicPlaylist);
 
     closeOverlay();
   }, [closeOverlay, publicPlaylist]);

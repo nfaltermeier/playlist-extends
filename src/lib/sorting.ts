@@ -1,10 +1,7 @@
-import { NamedTrack } from '../redux/playlists';
-import { getTracksWithFields } from './api';
-
-interface Track extends SpotifyApi.TrackObjectFull {
+export interface SortingTrack extends SpotifyApi.TrackObjectFull {
   spotifyPlaylistIndex: number
 }
-type TrackComparareFn = (a: Track, b: Track) => number;
+type TrackComparareFn = (a: SortingTrack, b: SortingTrack) => number;
 
 const sortParts = [
   { key: 'trackNumber', name: 'Song number in album', defaultOrder: 'a' },
@@ -20,7 +17,7 @@ const createPlaylistSorter = (sortSpec: string): TrackComparareFn => {
   if (parts.length % 2 !== 0) {
     throw new Error(`Sorting Spec has an odd number of parts, may be missing an order specifier. sortSpec: '${sortSpec}'`);
   }
-  const cmp = (a: Track, b: Track, i: number): number => {
+  const cmp = (a: SortingTrack, b: SortingTrack, i: number): number => {
     let part;
     let end = false;
     if (i < parts.length) {
@@ -95,7 +92,7 @@ const createPlaylistSorter = (sortSpec: string): TrackComparareFn => {
   return (a, b) => cmp(a, b, 0);
 };
 
-const createRequestFields = (sortSpec: string): string => {
+const createSortingRequestFields = (sortSpec: string): string => {
   const parts = sortSpec.split(';');
   if (parts.length % 2 !== 0) {
     throw new Error(`Sorting Spec has an odd number of parts, may be missing an order specifier. sortSpec: '${sortSpec}'`);
@@ -152,16 +149,4 @@ const createRequestFields = (sortSpec: string): string => {
   return result;
 };
 
-const getSortedPlaylist = async (playlistIds: string[], sortSpec: string): Promise<NamedTrack[]> => {
-  const fields = createRequestFields(sortSpec);
-  const tracks = (await getTracksWithFields(playlistIds, fields)) as Track[];
-  tracks.forEach((track, i) => {
-    // eslint-disable-next-line no-param-reassign
-    track.spotifyPlaylistIndex = i;
-  });
-  const compare = createPlaylistSorter(sortSpec);
-  tracks.sort(compare);
-  return tracks.map((t) => ({ uri: t.uri, name: t.name }));
-};
-
-export { getSortedPlaylist, sortParts };
+export { createPlaylistSorter, createSortingRequestFields, sortParts };

@@ -2,12 +2,13 @@ import { batch } from 'react-redux';
 import store from '../redux/store';
 import {
   mergeSpotifyState, selectAllPlaylists, setComponentPlaylists,
-  setCompositePlaylistsNeedSync, setLastSyncTracks, setSnapshotId, prependPlaylist, selectPlaylistById, replacePlaylist, deletePlaylist,
+  setCompositePlaylistsNeedSync, setLastSyncTracks, setSnapshotId, prependPlaylist, selectPlaylistById, replacePlaylist, deletePlaylist, setSortSpec,
 } from '../redux/playlists';
 import { refreshAccessToken } from './auth';
 import spotifyApi from './spotifyApiKeeper';
 import type { NamedTrack } from '../redux/playlists';
 import { setDefaultPublicPlaylists } from '../redux/preferences';
+import { createSortingRequestFields, createPlaylistSorter, SortingTrack } from './sorting';
 
 // copy of https://github.com/DefinitelyTyped/DefinitelyTyped/blob/74b19cf32a1b2f10958f5729f798245afb1125f5/types/spotify-web-api-node/index.d.ts#L1037
 // because this interface is not exported
@@ -104,9 +105,22 @@ const getTracksWithFields = async (playlistIds: string[], fields: string): Promi
   return jaggedSongs.flat().map((t) => t.track);
 };
 
-const createNewPlaylist = async (playlistName: string, content: NamedTrack[], checkedPlaylistIds: string[], sortSpec: string, publicPlaylist: boolean): Promise<string> => {
+const getSortedPlaylist = async (playlistIds: string[], sortSpec: string): Promise<NamedTrack[]> => {
+  const fields = createSortingRequestFields(sortSpec);
+  const tracks = (await getTracksWithFields(playlistIds, fields)) as SortingTrack[];
+  tracks.forEach((track, i) => {
+    // eslint-disable-next-line no-param-reassign
+    track.spotifyPlaylistIndex = i;
+  });
+  const compare = createPlaylistSorter(sortSpec);
+  tracks.sort(compare);
+  return tracks.map((t) => ({ uri: t.uri, name: t.name }));
+};
+
+const createNewPlaylist = async (playlistName: string, checkedPlaylistIds: string[], sortSpec: string, publicPlaylist: boolean): Promise<string> => {
   const { dispatch } = store;
-  const trackUris = content.map((t) => t.uri);
+  const sortedTracks = await getSortedPlaylist(checkedPlaylistIds, sortSpec);
+  const trackUris = sortedTracks.map((t) => t.uri);
 
   const playlistId = (await spotifyApi.createPlaylist(playlistName, { public: publicPlaylist })).body.id;
 
@@ -129,15 +143,16 @@ const createNewPlaylist = async (playlistName: string, content: NamedTrack[], ch
     needsSync: false,
     deletedOnSpotify: false,
     isUserPlaylist: true,
-    lastSyncTracks: content,
+    lastSyncTracks: sortedTracks,
     sortSpec,
   }));
   dispatch(setDefaultPublicPlaylists(publicPlaylist));
   return playlistId;
 };
 
-const updateExistingPlaylist = async (playlistId: string, newContent: NamedTrack[], componentPlaylistIds: string[]) => {
-  const trackUris = newContent.map((t) => t.uri);
+const updateExistingPlaylist = async (playlistId: string, componentPlaylistIds: string[], sortSpec: string) => {
+  const sortedTracks = await getSortedPlaylist(componentPlaylistIds, sortSpec);
+  const trackUris = sortedTracks.map((t) => t.uri);
 
   let tracksAdded = 100;
   let snapshotId = (await spotifyApi.replaceTracksInPlaylist(
@@ -158,23 +173,40 @@ const updateExistingPlaylist = async (playlistId: string, newContent: NamedTrack
     dispatch(setSnapshotId({ playlistId, snapshotId }));
     dispatch(setComponentPlaylists({ playlistId, componentPlaylistIds }));
     dispatch(setCompositePlaylistsNeedSync(playlistId));
-    dispatch(setLastSyncTracks({ playlistId, tracks: newContent }));
+    dispatch(setLastSyncTracks({ playlistId, tracks: sortedTracks }));
+    dispatch(setSortSpec({ playlistId, spec: sortSpec }));
   });
 };
 
-const replaceDeletedPlaylist = async (playlistId: string, content: NamedTrack[], publicPlaylist: boolean): Promise<string> => {
+const replaceDeletedPlaylist = async (playlistId: string, publicPlaylist: boolean): Promise<string> => {
   const { dispatch } = store;
   const playlist = selectPlaylistById(store.getState(), playlistId);
   if (!playlist) {
     throw new Error(`Trying to replace playlist that doesn't exist '${playlistId}'`);
   }
-  const newId = await createNewPlaylist(playlist.name, content, playlist.componentPlaylistIds, playlist.sortSpec, publicPlaylist);
+  const newId = await createNewPlaylist(playlist.name, playlist.componentPlaylistIds, playlist.sortSpec, publicPlaylist);
   dispatch(replacePlaylist({ oldId: playlistId, newId }));
   dispatch(deletePlaylist(playlistId));
   return newId;
 };
 
+/**
+ * Argument should be the result of makeSyncOrder from playlistsHelper
+ * @param playlistsToSync Should be the result of makeSyncOrder from playlistsHelper
+ */
+const syncMultiplePlaylists = async (playlistsToSync: string[]) => {
+  const reduxState = store.getState();
+  for (let i = 0; i < playlistsToSync.length; i += 1) {
+    const pId = playlistsToSync[i];
+    const p = selectPlaylistById(reduxState, pId);
+    if (!p) {
+      throw new Error(`Trying to sync non-existent playlist '${pId}'`);
+    }
+    await updateExistingPlaylist(p.id, p.componentPlaylistIds, p.sortSpec);
+  }
+};
+
 export {
-  paginateAndRefreshAuth, refreshAuthWrapper, fetchPlaylists,
-  getTracksWithFields, createNewPlaylist, updateExistingPlaylist, replaceDeletedPlaylist,
+  paginateAndRefreshAuth, refreshAuthWrapper, fetchPlaylists, getTracksWithFields,
+  getSortedPlaylist, createNewPlaylist, updateExistingPlaylist, replaceDeletedPlaylist, syncMultiplePlaylists,
 };
