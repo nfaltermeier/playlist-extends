@@ -17,4 +17,31 @@ a {
   .App {
     text-align: center;
   }
+
+  .topNavContainer {
+    margin: 15px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .topNav {
+    display: inline-block;
+    margin-right: 15px;
+  }
+
+  .navMargin {
+    margin-right: 15px;
+  }
+
+  .spotifyLogo {
+    width: 100px;
+  }
+
+  .bottomNav {
+    margin: 15px 0px;
+    > *:not(:last-child) {
+      margin-right: 15px;
+    }
+  }
 }

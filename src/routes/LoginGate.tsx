@@ -61,15 +61,18 @@ function LoginGate() {
       content = <p>Failed to generate Spotify login URL</p>;
     } else {
       content = (
-        <button
-          type="button"
-          onClick={() => {
-            saveLastLocation(location.pathname + location.search);
-            window.location.href = loginUrlState.loginUrl as string;
-          }}
-        >
-          Login
-        </button>
+        <>
+          {'This page requires you to log in through Spotify. '}
+          <button
+            type="button"
+            onClick={() => {
+              saveLastLocation(location.pathname + location.search);
+              window.location.href = loginUrlState.loginUrl as string;
+            }}
+          >
+            Login
+          </button>
+        </>
       );
     }
   } else if (playlistsRequestState.isLoading) {

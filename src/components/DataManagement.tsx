@@ -4,7 +4,11 @@ import { persistor, RootState, getLocalStorageKey } from '../redux/store';
 import { useLoggedIn } from '../redux/loggedIn';
 import styles from './DataManagement.module.scss';
 
-function DataManagement() {
+const defaultProps = {
+  buttonClassname: '',
+};
+
+function DataManagement({ buttonClassname }: { buttonClassname?: string }) {
   const [isDataOverlayOpen, setIsDataOverlayOpen] = useState(false);
   const [message, setMessage] = useState('');
   const fileInput = useRef<HTMLInputElement>(null);
@@ -63,7 +67,14 @@ function DataManagement() {
 
   return (
     <>
-      <button type="button" onClick={() => { setIsDataOverlayOpen((state) => !state); }}>Backup Management</button>
+      <button
+        type="button"
+        onClick={() => { setIsDataOverlayOpen((state) => !state); }}
+        className={buttonClassname}
+      >
+        Backup Management
+
+      </button>
       <Overlay
         isOpen={isDataOverlayOpen}
         closeOverlay={() => { setIsDataOverlayOpen(false); }}
@@ -100,5 +111,7 @@ function DataManagement() {
     </>
   );
 }
+
+DataManagement.defaultProps = defaultProps;
 
 export default DataManagement;

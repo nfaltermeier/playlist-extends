@@ -8,6 +8,7 @@ import Callback from './routes/Callback';
 import StateError from './routes/StateError';
 import NotFound from './routes/NotFound';
 import LoginGate from './routes/LoginGate';
+import Privacy from './routes/Privacy';
 
 function AppRoutes() {
   return (
@@ -20,6 +21,7 @@ function AppRoutes() {
           </Route>
           <Route path="callback" element={<Callback />} />
           <Route path="state-error" element={<StateError />} />
+          <Route path="privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
