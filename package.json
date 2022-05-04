@@ -74,7 +74,8 @@
     "start": "cross-env BROWSER=none node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
-    "lint": "eslint --ext .ts,.tsx,.js,.jsx src/ && stylelint src/**/*.scss src/**/*.css"
+    "lint": "eslint --ext .ts,.tsx,.js,.jsx src/ && stylelint src/**/*.scss src/**/*.css",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -147,6 +148,7 @@
     "eslint-plugin-react": "^7.29.3",
     "eslint-plugin-react-hooks": "^4.3.0",
     "eslint-webpack-plugin": "^3.1.1",
+    "gh-pages": "^3.2.3",
     "stylelint": "^14.5.3",
     "stylelint-config-recommended-scss": "^5.0.2",
     "stylelint-scss": "^4.1.0"
