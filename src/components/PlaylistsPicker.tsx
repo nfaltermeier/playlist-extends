@@ -2,13 +2,14 @@ import {
   ReactNode, useCallback, useRef, useState,
 } from 'react';
 import { usePlaylists } from '../redux/playlists';
+import { useLoadingStatusHelper } from './LoadingButton';
 import PlaylistSearch from './PlaylistSearch';
 import styles from './PlaylistsPicker.module.scss';
 import Sorting from './SortingOverlay';
 
 type PlaylistsPickerProps = {
   title: string,
-  onSubmitCallback: (checkedPlaylistIds: string[], sortSpec: string) => void,
+  onSubmitCallback: (checkedPlaylistIds: string[], sortSpec: string) => Promise<void>,
   bottomMenu: ReactNode,
   bottomMenuContainerClassName?: string,
   submitButtonClassName?: string,
@@ -46,10 +47,20 @@ function PlaylistsPicker(props: PlaylistsPickerProps) {
 
   const [sortSpec, setSortSpec] = useState(intialSortSpec);
 
-  const onSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((event) => {
-    event.preventDefault();
-    onSubmitCallback(Array.from(checkedPlaylists.current), sortSpec);
+  const unwrappedOnSubmit = useCallback(async () => {
+    await onSubmitCallback(Array.from(checkedPlaylists.current), sortSpec);
   }, [onSubmitCallback, sortSpec]);
+  const [wrappedOnSubmit, loadingIndicator] = useLoadingStatusHelper(unwrappedOnSubmit);
+  const [message, setMessage] = useState('');
+  const doubleWrappedOnSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((event) => {
+    event.preventDefault();
+    if (checkedPlaylists.current.size > 0) {
+      setMessage('');
+      wrappedOnSubmit();
+    } else {
+      setMessage('Please select at least one playlist');
+    }
+  }, [wrappedOnSubmit]);
 
   let content;
   const filteredPlaylists = playlists.filter((playlist) => !playlist.deletedOnSpotify);
@@ -70,15 +81,17 @@ function PlaylistsPicker(props: PlaylistsPickerProps) {
   }
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={doubleWrappedOnSubmit}>
       <h2>{title}</h2>
       <PlaylistSearch onPlaylistSelected={togglePlaylist} />
       <Sorting initialSpec={intialSortSpec} saveCallback={setSortSpec} />
       <div className={styles.optionsList}>{content}</div>
+      <span className={styles.message}>{message}</span>
       <div className={`${bottomMenuContainerClassName} ${styles.bottomContainer}`}>
         {bottomMenu}
         <div>
           <input id="submit" type="submit" value="Save" className={submitButtonClassName} />
+          {loadingIndicator}
         </div>
       </div>
     </form>

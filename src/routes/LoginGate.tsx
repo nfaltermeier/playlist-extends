@@ -47,13 +47,12 @@ function LoginGate({ altLoginRequired, altLoggedIn }: { altLoginRequired?: React
   useEffect(() => {
     if (!loggedIn || playlistsRetrieved) return;
 
-    fetchPlaylists(
-      () => {
-        playlistsRetrieved = true;
-        setPlaylistsRequestState({ isLoading: false, isErrored: false });
-      },
-      () => { setPlaylistsRequestState({ isLoading: false, isErrored: true }); }
-    );
+    fetchPlaylists().then(() => {
+      playlistsRetrieved = true;
+      setPlaylistsRequestState({ isLoading: false, isErrored: false });
+    }).catch(() => {
+      setPlaylistsRequestState({ isLoading: false, isErrored: true });
+    });
   }, [loggedIn]);
 
   let content: ReactNode;

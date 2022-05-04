@@ -1,0 +1,33 @@
+@use '../variables';
+
+:local {
+  .wrapper {
+    display: inline-block;
+  }
+
+  .loading {
+    display: inline-block;
+    animation: spin 2s linear infinite; 
+    font-size: 2em;
+    line-height: 50%;
+  }
+
+  @keyframes spin {
+    from {
+      transform: translateY(50%) rotate(0deg);
+      
+    }
+
+    to {
+      transform: translateY(50%) rotate(360deg);
+    }
+  }
+
+  .errored {
+    color: variables.$red-text-color;
+  }
+
+  .succeded {
+    color: variables.$green-text-color;
+  }
+}

@@ -3,6 +3,7 @@ import Overlay from './Overlay';
 import { persistor, RootState, getLocalStorageKey } from '../redux/store';
 import { useLoggedIn } from '../redux/loggedIn';
 import styles from './DataManagement.module.scss';
+import LoadingButton from './LoadingButton';
 
 const defaultProps = {
   buttonClassname: '',
@@ -73,7 +74,6 @@ function DataManagement({ buttonClassname }: { buttonClassname?: string }) {
         className={buttonClassname}
       >
         Backup Management
-
       </button>
       <Overlay
         isOpen={isDataOverlayOpen}
@@ -87,7 +87,7 @@ function DataManagement({ buttonClassname }: { buttonClassname?: string }) {
           {message}
           <h2>Backup Management</h2>
           <div className={styles.bottomMargin}>
-            <button type="button" onClick={downloadClicked}>Download backup</button>
+            <LoadingButton onClick={downloadClicked}>Download backup</LoadingButton>
           </div>
           <div>
             <form

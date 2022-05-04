@@ -13,6 +13,7 @@ import {
   usePlaylistById, deletePlaylist,
 } from '../redux/playlists';
 import { useDefaultPublicPlaylists } from '../redux/preferences';
+import LoadingButton from '../components/LoadingButton';
 
 function EditPlaylist() {
   const dispatch = useDispatch();
@@ -58,15 +59,14 @@ function EditPlaylist() {
               />
             </label>
           </div>
-          <button
-            type="button"
+          <LoadingButton
             onClick={async () => {
               const newPlaylistId = await replaceDeletedPlaylist(playlist.id, publicPlaylist);
               navigate(`/playlist/${newPlaylistId}`);
             }}
           >
             Recreate Playlist on Spotify
-          </button>
+          </LoadingButton>
         </>
       );
     } else if (playlist.componentPlaylistIds.length === 0) {

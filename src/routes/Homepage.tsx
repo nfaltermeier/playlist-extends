@@ -7,37 +7,30 @@ import { usePlaylists } from '../redux/playlists';
 import styles from './Homepage.module.scss';
 import { fetchPlaylists, syncMultiplePlaylists } from '../lib/api';
 import { makeSyncOrder } from '../lib/playlistsHelper';
+import LoadingButton from '../components/LoadingButton';
 
 function Homepage() {
   const playlists = usePlaylists();
   const store = useStore();
   const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
   const closeOverlay = useCallback(() => { setIsCreatingPlaylist(false); }, [setIsCreatingPlaylist]);
-  const [refreshPlaylistsMessage, setRefreshPlaylistsMessage] = useState<null | string>(null);
-  const fetchPlaylistsCallback = useCallback(() => {
-    fetchPlaylists(() => { setRefreshPlaylistsMessage(null); }, () => { setRefreshPlaylistsMessage('Failed to refresh playlists!'); });
-  }, [setRefreshPlaylistsMessage]);
 
   return (
     <div>
       <h2>Playlists</h2>
       <div>
         <button onClick={() => { setIsCreatingPlaylist(true); }} type="button">New Playlist</button>
-        <button onClick={fetchPlaylistsCallback} type="button">Refresh playlists</button>
+        <LoadingButton onClick={fetchPlaylists}>Refresh playlists</LoadingButton>
         {playlists.some((p) => p.needsSync) && (
-          <button
-            onClick={() => {
-              syncMultiplePlaylists(
-                makeSyncOrder(store.getState(), playlists.filter((p) => p.needsSync).map((p) => p.id))
-              );
-            }}
-            type="button"
+          <LoadingButton
+            onClick={() => syncMultiplePlaylists(
+              makeSyncOrder(store.getState(), playlists.filter((p) => p.needsSync).map((p) => p.id))
+            )}
           >
             Sync all playlists
-          </button>
+          </LoadingButton>
         )}
       </div>
-      {refreshPlaylistsMessage}
       <Overlay isOpen={isCreatingPlaylist} closeOverlay={closeOverlay}>
         <NewPlaylist closeOverlay={closeOverlay} />
       </Overlay>

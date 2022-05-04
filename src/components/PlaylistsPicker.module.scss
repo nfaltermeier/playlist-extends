@@ -1,10 +1,17 @@
+@use '../variables';
+
 :local {
   .optionsList {
-    max-height: 70vh;
+    max-height: 65vh;
     overflow-y: auto;
   }
 
   .bottomContainer input[type="submit"] {
     font-size: 1.5em;
+  }
+
+  .message {
+    font-size: 1.5em;
+    color: variables.$red-text-color;
   }
 }

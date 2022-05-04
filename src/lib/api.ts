@@ -79,25 +79,19 @@ const paginateAndRefreshAuth = <T>(requestFn: (offset: number) => Promise<Respon
  * Retrieves the current user's playlists and any external playlists already in the redux store
  * and merges them with the current redux store's playlists
  */
-const fetchPlaylists = async (successCallback: () => void, failureCallback: () => void) => {
+const fetchPlaylists = async () => {
   const { dispatch } = store;
-  try {
-    const currentPlaylists = selectAllPlaylists(store.getState());
-    const externalPlaylists = currentPlaylists.filter((p) => !p.isUserPlaylist);
-    const playlistPromises = externalPlaylists.map((p) => refreshAuthWrapper(() => spotifyApi.getPlaylist(p.id, { fields: 'name,id,snapshot_id' }).catch(() => null)));
-    const result = await paginateAndRefreshAuth((offset) => spotifyApi.getUserPlaylists({ limit: 50, offset }));
-    (await Promise.all(playlistPromises)).forEach((p) => {
-      if (p !== null) {
-        result.push(p.body);
-      }
-    });
-    // dispatch(testResetNeedsSync());
-    dispatch(mergeSpotifyState(result));
-    successCallback();
-  } catch (e) {
-    console.error(e);
-    failureCallback();
-  }
+  const currentPlaylists = selectAllPlaylists(store.getState());
+  const externalPlaylists = currentPlaylists.filter((p) => !p.isUserPlaylist);
+  const playlistPromises = externalPlaylists.map((p) => refreshAuthWrapper(() => spotifyApi.getPlaylist(p.id, { fields: 'name,id,snapshot_id' }).catch(() => null)));
+  const result = await paginateAndRefreshAuth((offset) => spotifyApi.getUserPlaylists({ limit: 50, offset }));
+  (await Promise.all(playlistPromises)).forEach((p) => {
+    if (p !== null) {
+      result.push(p.body);
+    }
+  });
+  // dispatch(testResetNeedsSync());
+  dispatch(mergeSpotifyState(result));
 };
 
 /**

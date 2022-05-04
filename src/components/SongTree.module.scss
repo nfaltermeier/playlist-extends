@@ -1,3 +1,5 @@
+@use '../variables';
+
 :local {
   // Styles adapted and restructured from https://two-wrongs.com/draw-a-tree-structure-with-only-css
   .treeRoot {
@@ -40,11 +42,11 @@
   }
 
   .added {
-    color: #00B300;
+    color: variables.$green-text-color;
   }
 
   .removed {
-    color: #FF5757;
+    color: variables.$red-text-color;
   }
 
   .reordered {
