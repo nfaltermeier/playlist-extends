@@ -10,7 +10,7 @@ export const hasDeletedComponent = (state: RootState, playlistId: string): boole
   const checked = new Set<string>();
   const queue = new Array(...playlist.componentPlaylistIds);
   while (queue.length > 0) {
-    const toCheckId = queue.pop() as string;
+    const toCheckId = queue.pop()!;
     if (checked.has(toCheckId)) {
       continue;
     }
@@ -34,11 +34,8 @@ export const makeSyncOrder = (state: RootState, playlistsToSync: string[]): Arra
   let toCheck = new Array<string>(...playlistsToSync);
   const results = new Array<string>();
 
-  while (toCheck.length !== 0) {
-    const cId = toCheck.pop();
-    if (cId === undefined) {
-      continue;
-    }
+  while (toCheck.length > 0) {
+    const cId = toCheck.pop()!;
     const c = selectPlaylistById(state, cId);
     if (c === undefined) {
       continue;

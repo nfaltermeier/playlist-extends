@@ -9,7 +9,7 @@ import { refreshAccessToken } from './auth';
 import spotifyApi from './spotifyApiKeeper';
 import type { NamedTrack } from '../redux/playlists';
 import { setDefaultPublicPlaylists } from '../redux/preferences';
-import { createSortingRequestFields, createPlaylistSorter, SortingTrack } from './sorting';
+import { createSortingRequestFields, createPlaylistSorter } from './sorting';
 
 // copy of https://github.com/DefinitelyTyped/DefinitelyTyped/blob/74b19cf32a1b2f10958f5729f798245afb1125f5/types/spotify-web-api-node/index.d.ts#L1037
 // because this interface is not exported
@@ -109,14 +109,13 @@ const getTracksWithFields = async (playlistIds: string[], fields: string): Promi
 
 const getSortedPlaylist = async (playlistIds: string[], sortSpec: string): Promise<NamedTrack[]> => {
   const fields = createSortingRequestFields(sortSpec);
-  const tracks = (await getTracksWithFields(playlistIds, fields)) as SortingTrack[];
-  tracks.forEach((track, i) => {
-    // eslint-disable-next-line no-param-reassign
-    track.spotifyPlaylistIndex = i;
-  });
+  const tracks = (await getTracksWithFields(playlistIds, fields));
+  const sortTracks = tracks.map((track, i) => (
+    Object.assign(track, { spotifyPlaylistIndex: i })
+  ));
   const compare = createPlaylistSorter(sortSpec);
-  tracks.sort(compare);
-  return tracks.map((t) => ({ uri: t.uri, name: t.name }));
+  sortTracks.sort(compare);
+  return sortTracks.map((t) => ({ uri: t.uri, name: t.name }));
 };
 
 const createNewPlaylist = async (playlistName: string, checkedPlaylistIds: string[], sortSpec: string, publicPlaylist: boolean): Promise<string> => {

@@ -62,6 +62,9 @@ function LoginGate({ altLoginRequired, altLoggedIn }: { altLoginRequired?: React
     } else if (loginUrlState.isErrored || !loginUrlState.loginUrl) {
       content = <p>Failed to generate Spotify login URL</p>;
     } else {
+      // loginUrlState.loginUrl could be changed before onClick reads it's value,
+      // this prevents complaints about it being undefined
+      const url = loginUrlState.loginUrl;
       content = (
         <>
           {altLoginRequired || 'This page requires you to log in through Spotify. '}
@@ -69,7 +72,7 @@ function LoginGate({ altLoginRequired, altLoggedIn }: { altLoginRequired?: React
             type="button"
             onClick={() => {
               saveLastLocation(location.pathname + location.search);
-              window.location.href = loginUrlState.loginUrl as string;
+              window.location.href = url;
             }}
           >
             Login
