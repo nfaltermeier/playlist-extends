@@ -15,7 +15,7 @@ export const hasDeletedComponent = (state: RootState, playlistId: string): boole
       continue;
     }
     const toCheck = selectPlaylistById(state, toCheckId);
-    if (!toCheck || (toCheck.deletedOnSpotify && toCheck.componentPlaylistIds.length === 0)) {
+    if (!toCheck || (toCheck.deletedOnSpotify /* && toCheck.componentPlaylistIds.length === 0 */)) {
       return true;
     }
     checked.add(toCheckId);
