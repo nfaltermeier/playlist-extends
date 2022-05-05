@@ -24,6 +24,7 @@ function App() {
         <NavLink to="/">Introduction</NavLink>
         <NavLink to="/home">Home</NavLink>
         <NavLink to="/privacy">Privacy Policy</NavLink>
+        <a target="_blank" rel="noreferrer" href="https://github.com/nfaltermeier/playlist-extends">Source Code</a>
       </div>
     </div>
   );
