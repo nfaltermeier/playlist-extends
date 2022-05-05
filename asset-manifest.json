@@ -1,21 +1,21 @@
 {
   "files": {
     "index.css": "/playlist-extends/static/css/index.4d7ea9fd.css",
-    "index.js": "/playlist-extends/static/js/index.6b1d8569.js",
+    "index.js": "/playlist-extends/static/js/index.29d42903.js",
     "callback.js": "/playlist-extends/static/js/callback.bee636e4.js",
     "static/js/787.13b1aafb.chunk.js": "/playlist-extends/static/js/787.13b1aafb.chunk.js",
     "static/media/Spotify_Logo_RGB_Green.png": "/playlist-extends/static/media/Spotify_Logo_RGB_Green.0c4ae91bae23217d39c9.png",
     "index.html": "/playlist-extends/index.html",
     "callback.html": "/playlist-extends/callback.html",
     "index.4d7ea9fd.css.map": "/playlist-extends/static/css/index.4d7ea9fd.css.map",
-    "index.6b1d8569.js.map": "/playlist-extends/static/js/index.6b1d8569.js.map",
+    "index.29d42903.js.map": "/playlist-extends/static/js/index.29d42903.js.map",
     "callback.bee636e4.js.map": "/playlist-extends/static/js/callback.bee636e4.js.map",
     "787.13b1aafb.chunk.js.map": "/playlist-extends/static/js/787.13b1aafb.chunk.js.map"
   },
   "entrypoints": {
     "index": [
       "static/css/index.4d7ea9fd.css",
-      "static/js/index.6b1d8569.js"
+      "static/js/index.29d42903.js"
     ],
     "callback": [
       "static/js/callback.bee636e4.js"
