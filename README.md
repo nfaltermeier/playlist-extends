@@ -1,10 +1,11 @@
 # Playlist Extends
 Create spotify playlists that contain other spotify playlists, and then easily update the resulting playlists.
+Supports custom sorting of the resulting playlists and lets you import/export your data.
 
-[Check it out.](https://nfaltermeier.github.io/playlist-extends) NOTE: This is a beta build, problems may occur and user data may be lost. Use at your own risk.
+[Check it out.](https://nfaltermeier.github.io/playlist-extends)
 
 ## Design
-This is a serverless app (except for Spotify, of course), so it only needs static file hosting. Because there is no backend, all logic is done in the website and so I chose to use Typescript
+This is a serverless app (except for Spotify, of course), so it only needs static file hosting. Because there is no backend, all logic is done in the website and so I chose to use Typescript.
 
 ## Setup
 
