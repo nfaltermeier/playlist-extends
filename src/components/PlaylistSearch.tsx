@@ -4,7 +4,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { refreshAuthWrapper } from '../lib/api';
 import store from '../redux/store';
-import { selectPlaylistById, prependPlaylist, defaultSortSpec } from '../redux/playlists';
+import { selectPlaylistById, addPlaylist, defaultSortSpec } from '../redux/playlists';
 import spotifyApi from '../lib/spotifyApiKeeper';
 import Dropdown from './Dropdown';
 import styles from './PlaylistSearch.module.scss';
@@ -134,7 +134,7 @@ function PlaylistSearch({ onPlaylistSelected }: { onPlaylistSelected: (id: strin
   const playlistClicked = useCallback((playlist: Playlist) => {
     const existingPlaylist = selectPlaylistById(store.getState(), playlist.id);
     if (!existingPlaylist) {
-      dispatch(prependPlaylist({
+      dispatch(addPlaylist({
         id: playlist.id,
         name: playlist.name,
         snapshotId: playlist.snapshotId,
@@ -144,6 +144,7 @@ function PlaylistSearch({ onPlaylistSelected }: { onPlaylistSelected: (id: strin
         isUserPlaylist: false,
         lastSyncTracks: [],
         sortSpec: defaultSortSpec,
+        playlistSortNumber: 0,
       }));
     }
     onPlaylistSelected(playlist.id);

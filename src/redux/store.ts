@@ -37,6 +37,10 @@ const migrations = {
     const playlists = selectAllPlaylists(state);
     return { ...state, playlists: setAllPlaylists(state.playlists, playlists.map((playlist) => ({ ...playlist, sortSpec: defaultSortSpec }))) };
   },
+  6: (state: any): any => {
+    const playlists = selectAllPlaylists(state);
+    return { ...state, playlists: setAllPlaylists(state.playlists, playlists.map((playlist, index) => ({ ...playlist, playlistSortNumber: index }))) };
+  },
 };
 
 let localStorageKey = 'reduxStore';
@@ -45,7 +49,7 @@ export const getLocalStorageKey = () => localStorageKey;
 const persistConfig = {
   key: localStorageKey,
   whitelist: ['playlists', 'migratePersistOnLogin', 'preferences'],
-  version: 5,
+  version: 6,
   storage,
   migrate: createMigrate(migrations),
 };

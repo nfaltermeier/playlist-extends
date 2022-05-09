@@ -18,19 +18,43 @@ export interface ExtendablePlaylist {
   // The track URIs as of the last sync, only stored for composite playlists
   readonly lastSyncTracks: NamedTrack[],
   readonly sortSpec: string,
+  // How the playlist is sorted among the other playlists on the homepage
+  readonly playlistSortNumber: number,
 }
 
 export const defaultSortSpec = 'custom;a';
 
-const playlistsAdapter = createEntityAdapter<ExtendablePlaylist>();
-const localSelectors = playlistsAdapter.getSelectors();
+const playlistsAdapter = createEntityAdapter<ExtendablePlaylist>({
+  sortComparer: (a, b) => (a.playlistSortNumber - b.playlistSortNumber),
+});
+type StateType = Parameters<typeof playlistsAdapter.updateMany>[0];
+
+const changeSortOrderFn = (state: StateType, action: PayloadAction<{ playlistToMoveId: string, newIndex: number }>) => {
+  const { playlistToMoveId, newIndex } = action.payload;
+  const playlistToMove = state.entities[playlistToMoveId];
+  if (playlistToMove) {
+    const updates = state.ids.map((id, index) => {
+      if (id === playlistToMoveId) {
+        return { id, changes: { playlistSortNumber: newIndex } };
+      }
+      const pl = state.entities[id]!;
+      if (pl.playlistSortNumber >= newIndex) {
+        return { id, changes: { playlistSortNumber: pl.playlistSortNumber + 1 } };
+      }
+      // This should help prevent the sort numbers just getting larger and larger
+      return { id, changes: { playlistSortNumber: index } };
+    });
+    playlistsAdapter.updateMany(state, updates);
+  }
+};
 
 const playlistsSlice = createSlice({
   name: 'playlists',
   initialState: playlistsAdapter.getInitialState(),
   reducers: {
-    prependPlaylist(state, action: PayloadAction<ExtendablePlaylist>) {
-      playlistsAdapter.setAll(state, [action.payload, ...localSelectors.selectAll(state)]);
+    addPlaylist(state, action: PayloadAction<ExtendablePlaylist>) {
+      playlistsAdapter.addOne(state, action.payload);
+      changeSortOrderFn(state, { payload: { playlistToMoveId: action.payload.id, newIndex: action.payload.playlistSortNumber }, type: 'playlists/changeSortOrder' });
     },
     mergeSpotifyState(state, action: PayloadAction<SpotifyApi.PlaylistObjectSimplified[]>) {
       const incomingPlaylists = action.payload;
@@ -119,6 +143,7 @@ const playlistsSlice = createSlice({
             isUserPlaylist: true,
             lastSyncTracks: [],
             sortSpec: defaultSortSpec,
+            playlistSortNumber: 0,
           });
         }
       });
@@ -210,20 +235,23 @@ const playlistsSlice = createSlice({
         }
       });
     },
+    changeSortOrder: changeSortOrderFn,
   },
 });
 
 export const {
   selectAll: selectAllPlaylists,
   selectById: selectPlaylistById,
+  selectIds: selectPlaylistIds,
+  selectTotal: selectTotalPlaylists,
 } = playlistsAdapter.getSelectors((state: RootState) => state.playlists);
 
 export const usePlaylists = () => useSelector(selectAllPlaylists);
 export const usePlaylistById = (id: string) => useSelector((state: RootState) => selectPlaylistById(state, id));
 export const {
-  prependPlaylist, mergeSpotifyState, setName, setSnapshotId,
+  addPlaylist, mergeSpotifyState, setName, setSnapshotId,
   setComponentPlaylists, testResetNeedsSync, setCompositePlaylistsNeedSync, deletePlaylist,
-  setLastSyncTracks, setSortSpec, replacePlaylist,
+  setLastSyncTracks, setSortSpec, replacePlaylist, changeSortOrder,
 } = playlistsSlice.actions;
 export default playlistsSlice.reducer;
 /**

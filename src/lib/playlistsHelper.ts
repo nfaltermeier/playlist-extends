@@ -1,4 +1,4 @@
-import { selectPlaylistById } from '../redux/playlists';
+import { selectPlaylistById, selectPlaylistIds, selectTotalPlaylists } from '../redux/playlists';
 import type { RootState } from '../redux/store';
 
 export const hasDeletedComponent = (state: RootState, playlistId: string): boolean => {
@@ -57,4 +57,18 @@ export const makeSyncOrder = (state: RootState, playlistsToSync: string[]): Arra
     seen.add(f);
     return true;
   });
+};
+
+export const getNextSortNumber = (state: RootState): number => {
+  const count = selectTotalPlaylists(state);
+  if (count === 0) {
+    return 0;
+  }
+
+  const lastEntry = selectPlaylistById(state, selectPlaylistIds(state)[count - 1]);
+  if (lastEntry) {
+    return lastEntry.playlistSortNumber + 1;
+  }
+
+  return 0;
 };

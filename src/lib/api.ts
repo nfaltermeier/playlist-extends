@@ -3,7 +3,7 @@ import { Mutex } from 'async-mutex';
 import store from '../redux/store';
 import {
   mergeSpotifyState, selectAllPlaylists, setComponentPlaylists,
-  setCompositePlaylistsNeedSync, setLastSyncTracks, setSnapshotId, prependPlaylist, selectPlaylistById, replacePlaylist, deletePlaylist, setSortSpec,
+  setCompositePlaylistsNeedSync, setLastSyncTracks, setSnapshotId, addPlaylist, selectPlaylistById, replacePlaylist, deletePlaylist, setSortSpec,
 } from '../redux/playlists';
 import { refreshAccessToken } from './auth';
 import spotifyApi from './spotifyApiKeeper';
@@ -136,7 +136,7 @@ const createNewPlaylist = async (playlistName: string, checkedPlaylistIds: strin
     // tracksAdded will be inaccurate after the while loop, but that should be okay
     tracksAdded += 100;
   } while (tracksAdded < trackUris.length);
-  dispatch(prependPlaylist({
+  dispatch(addPlaylist({
     id: playlistId,
     name: playlistName,
     snapshotId,
@@ -146,6 +146,7 @@ const createNewPlaylist = async (playlistName: string, checkedPlaylistIds: strin
     isUserPlaylist: true,
     lastSyncTracks: sortedTracks,
     sortSpec,
+    playlistSortNumber: 0,
   }));
   dispatch(setDefaultPublicPlaylists(publicPlaylist));
   return playlistId;

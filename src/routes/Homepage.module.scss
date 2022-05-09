@@ -1,6 +1,7 @@
+@use '../variables';
+
 :local {
   .playlistContent {
-    display: inline-block;
     margin: 0 auto;
 
     thead td {
@@ -9,6 +10,25 @@
 
     td {
       padding-left: 5px;
+    }
+  }
+
+  .dragGhost {
+    border: 1px dotted variables.$text-color;
+    border-collapse: collapse;
+
+    td {
+      border-top: 1px dotted variables.$text-color;
+      border-bottom: 1px dotted variables.$text-color;
+      padding: 0;
+
+      &:first-child {
+        border-left: 1px dotted variables.$text-color;
+      }
+
+      &:last-child {
+        border-right: 1px dotted variables.$text-color;
+      }
     }
   }
 }
