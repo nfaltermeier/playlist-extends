@@ -3,13 +3,29 @@
 :local {
   .playlistContent {
     margin: 0 auto;
+    padding: 15px;
+
+    table {
+      border-collapse: collapse;
+      margin: 0 auto;
+    }
 
     thead td {
       border-bottom: 1px solid white;
+      border-left: 1px solid white;
+
+      &:first-child {
+        border-left: none;
+      }
+    }
+
+    tr:nth-child(even) {
+      background-color: variables.$background-color-light;
+      border-collapse: collapse;
     }
 
     td {
-      padding-left: 5px;
+      padding: 1px 5px;
     }
   }
 
@@ -29,6 +45,12 @@
       &:last-child {
         border-right: 1px dotted variables.$text-color;
       }
+    }
+  }
+
+  .hideMobile {
+    @include variables.for-phone {
+      display: none;
     }
   }
 }

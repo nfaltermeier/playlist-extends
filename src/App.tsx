@@ -10,9 +10,9 @@ function App() {
       <header>
         <h1>Playlist Extends</h1>
         <div className={styles.topNavContainer}>
-          <nav className={styles.topNav}>
+          <div className={styles.topNav}>
             <NavLink to="/home">Home</NavLink>
-          </nav>
+          </div>
           <DataManagement buttonClassname={styles.navMargin} />
           <img src={SpotifyLogo} className={styles.spotifyLogo} alt="Spotify logo" />
         </div>
@@ -20,12 +20,12 @@ function App() {
       <main>
         <Outlet />
       </main>
-      <div className={styles.bottomNav}>
+      <nav className={styles.bottomNav}>
         <NavLink to="/">Introduction</NavLink>
         <NavLink to="/home">Home</NavLink>
         <NavLink to="/privacy">Privacy Policy</NavLink>
         <a target="_blank" rel="noreferrer" href="https://github.com/nfaltermeier/playlist-extends">Source Code</a>
-      </div>
+      </nav>
     </div>
   );
 }

@@ -1,4 +1,9 @@
 $background-color: #282c34;
+$background-color-light: #31353F;
 $text-color: #d7d7d7;
 $green-text-color: #00B300;
 $red-text-color: #FF5757;
+
+@mixin for-phone {
+  @media screen and (max-width: 800px) { @content; }
+}

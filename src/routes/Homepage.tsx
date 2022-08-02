@@ -83,57 +83,59 @@ function Homepage() {
       <Overlay isOpen={isCreatingPlaylist} closeOverlay={closeOverlay}>
         <NewPlaylist closeOverlay={closeOverlay} />
       </Overlay>
-      <table className={styles.playlistContent}>
-        <thead>
-          <tr>
-            <td>Name</td>
-            <td>Type</td>
-            <td>Status</td>
-            <td>Edit</td>
-          </tr>
-        </thead>
-        <tbody>
-          {playlists.map((playlist) => {
-            let status;
-            if (playlist.deletedOnSpotify) {
-              status = 'Deleted';
-            } else if (playlist.needsSync) {
-              status = 'Needs Sync';
-            } else {
-              status = '';
-            }
-            let type;
-            if (playlist.componentPlaylistIds.length > 0) {
-              type = 'Extended';
-            } else if (!playlist.isUserPlaylist) {
-              type = 'External';
-            } else {
-              type = '';
-            }
-            return (
-              <tr
-                key={playlist.id}
-                id={playlist.id}
-                draggable
-                onDragStart={dragStartHandler}
-                onDragOver={dragOverHandler}
-                onDrop={dropHandler}
-                onDragEnd={dragEndHandler}
-              >
-                <td>{playlist.name}</td>
-                <td>{type}</td>
-                <td>{status}</td>
-                <td>
-                  <Link to={`/playlist/${playlist.id}`}>
-                    {playlist.componentPlaylistIds.length > 0 ? 'Edit' : 'View'}
-                  </Link>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <div>
+      <div className={styles.playlistContent}>
+        <table>
+          <thead>
+            <tr>
+              <td>Name</td>
+              <td>Type</td>
+              <td>Status</td>
+              <td>Edit</td>
+            </tr>
+          </thead>
+          <tbody>
+            {playlists.map((playlist) => {
+              let status;
+              if (playlist.deletedOnSpotify) {
+                status = 'Deleted';
+              } else if (playlist.needsSync) {
+                status = 'Needs Sync';
+              } else {
+                status = '';
+              }
+              let type;
+              if (playlist.componentPlaylistIds.length > 0) {
+                type = 'Extended';
+              } else if (!playlist.isUserPlaylist) {
+                type = 'External';
+              } else {
+                type = '';
+              }
+              return (
+                <tr
+                  key={playlist.id}
+                  id={playlist.id}
+                  draggable
+                  onDragStart={dragStartHandler}
+                  onDragOver={dragOverHandler}
+                  onDrop={dropHandler}
+                  onDragEnd={dragEndHandler}
+                >
+                  <td>{playlist.name}</td>
+                  <td>{type}</td>
+                  <td>{status}</td>
+                  <td>
+                    <Link to={`/playlist/${playlist.id}`}>
+                      {playlist.componentPlaylistIds.length > 0 ? 'Edit' : 'View'}
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className={styles.hideMobile}>
         Tip: Drag playlists to reorder them.
       </div>
     </div>
